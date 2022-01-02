@@ -181,12 +181,19 @@ class CustomParser(Parser):
     # Number
     def number(self):
         number = ""
-        found = self.char(["0-9"])
+        found = self.char(["0-9", "."])
+        is_float = False
         while found != None:
             number += found
-            found = self.maybe_char(["0-9"])
+            found = self.maybe_char(["0-9", "."])
+            if found == ".":
+                is_float = True
+        if is_float:
+            number = float(number)
+        else:
+            number = int(number)
 
-        return Node(float(number))
+        return Node(number)
 
 parser = CustomParser()
 var_table = {}
