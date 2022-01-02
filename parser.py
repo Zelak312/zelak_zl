@@ -7,13 +7,18 @@ class Parser:
         while self.pos < len(self.text) and self.text[self.pos] in " \f\v\r\t\n":
             self.pos += 1
     
-    def char(self, chars):
+    def char(self, chars = None):
         self.assert_end()
         current = self.text[self.pos]
+        if chars == None:
+            self.pos += 1
+            return current
+        
         for ch in chars:
-            if len(ch) == 1 and ch == current:
-                self.pos += 1
-                return current
+            if len(ch) == 1:
+                if ch == current:
+                    self.pos += 1
+                    return current
             elif ch[0] <= current and ch[2] >= current:
                 self.pos += 1
                 return current

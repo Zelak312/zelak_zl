@@ -14,14 +14,13 @@ Scope = (Loop|Statement)*
 Loop = "for"+VariableName+Number+"{"+(Scope)*+"}"
 Statement = (Function|Expression|Math)
 Function = AnyType"("+AnyType+")"
-Expression = AnyType+"="+Math
-Math = PowDiv+("+"|"-"+PowDiv)*
-PowDiv = Parenthese+("*"|"/"+Parenthese)*
-Parenthese = ("("+Math+")")|AnyType
+Expression(AnyType) = AnyType+"="+Math
+Math(AnyType) = PowDiv+("+"|"-"+PowDiv)*
+PowDiv(AnyType) = Parenthese+("*"|"/"+Parenthese)*
+Parenthese(AnyType) = ("("+Math+")")|AnyType
 ---
-AnyType = VariableName|Number
+AnyType = VariableName|String|Number
 VariableName = (Alphabet+(Number+Alphabet)*)
-
 """
 
 from parser import Parser
@@ -35,7 +34,7 @@ class CustomParser(Parser):
         return self.scope()
 
     def scope(self):
-        root = Node("scope")
+        root = Node("scope", scope=True)
         while True:
             try:
                 root.childs.append(self.loop())
@@ -96,6 +95,8 @@ class CustomParser(Parser):
             return (False, var_name)
         content = self.math()
         root = Node("=")
+        # Make the variable type known
+        var_name.is_string = content.is_string
         root.childs.append(var_name)
         root.childs.append(content)
         return (True, root)
@@ -134,12 +135,15 @@ class CustomParser(Parser):
             return any_type
         return self.any_type()
 
-    # AnyType = VariableName|Number
+    # AnyType = VariableName|String|Number
     def any_type(self):
         try:
             return self.variable_name()
         except:
-            return self.number()
+            try:
+                return self.string()
+            except:
+               return self.number()
 
     # VariableName = (Alphabet+(Number|Alphabet)*)
     def variable_name(self):
@@ -149,8 +153,32 @@ class CustomParser(Parser):
             var_name += found
             found = self.maybe_char(["A-Z", "a-z", "_", "0-9"])
         
-        return Node(var_name, True)
+        return Node(var_name, variable=True)
 
+    # String
+    def string(self):
+        all_chars = [char for char in "!#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ "]
+        all_chars.append("A-Z")
+        all_chars.append("a-z")
+        all_chars.append("0-9")
+        string = ""
+        self.char(["\""]) # Yes I only support " for now
+        found = self.char(all_chars)
+        while found != None:
+            string += found
+            found = self.maybe_char(all_chars)
+            if found == "\\":
+                # Escape sequance
+                to_escape = self.char()
+                if to_escape == "t":
+                    found = "\t"
+                else:
+                    found = to_escape
+
+        self.keyword(["\""])
+        return Node(string, string=True)
+
+    # Number
     def number(self):
         number = ""
         found = self.char(["0-9"])

@@ -1,5 +1,5 @@
 def evaluate_node(node, var_table):
-    if node.label == "scope": # TODO: change this shit
+    if node.is_scope:
         scopes = node.childs
         for scope in scopes:
             evaluate_node(scope, var_table)
@@ -19,15 +19,30 @@ def evaluate_node(node, var_table):
             print(evaluate_node(node.childs[0], var_table))
     elif node.operator:
         if node.label == "+":
-            return evaluate_node(node.childs[0], var_table) + evaluate_node(node.childs[1], var_table)
+            left = evaluate_node(node.childs[0], var_table)
+            right = evaluate_node(node.childs[1], var_table)
+            if type(left) is str or type(right) is str:
+                return str(left) + str(right)
+            return left + right
         elif node.label == "-":
-            return evaluate_node(node.childs[0], var_table) - evaluate_node(node.childs[1], var_table)
+            left = evaluate_node(node.childs[0], var_table)
+            right = evaluate_node(node.childs[1], var_table)
+            if type(left) is str or type(right) is str:
+                raise Exception("Cannot use '-' operator with string")
+            return left - right
         elif node.label == "*":
-            return evaluate_node(node.childs[0], var_table) * evaluate_node(node.childs[1], var_table)
+            left = evaluate_node(node.childs[0], var_table)
+            right = evaluate_node(node.childs[1], var_table)
+            if type(left) is str or type(right) is str:
+                raise Exception("Cannot use '*' operator with string")
+            return left * right
         elif node.label == "/":
-            return evaluate_node(node.childs[0], var_table) / evaluate_node(node.childs[1], var_table)
+            left = evaluate_node(node.childs[0], var_table)
+            right = evaluate_node(node.childs[1], var_table)
+            if type(left) is str or type(right) is str:
+                raise Exception("Cannot use '/' operator with string")
+            return left / right
     else:
         if node.is_variable:
             return var_table[node.label]
-        else:
-            return int(node.label)
+        return node.label

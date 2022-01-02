@@ -1,3 +1,7 @@
+str = "Hello"
+new_str = str + " " + "World"
+new_str = new_str + "! escape \"this should be escaped\""
+print_var(new_str)
 a = 2
 b = 1 + 2
 print_var(b)
