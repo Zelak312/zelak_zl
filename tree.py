@@ -1,17 +1,31 @@
 def evaluate_node(node, var_table):
-    if node.label == "=":
-        var = node.left.label
-        var_table[var] = evaluate_node(node.right, var_table)
+    if node.label == "scope": # TODO: change this shit
+        scopes = node.childs
+        for scope in scopes:
+            evaluate_node(scope, var_table)
+    elif node.label == "=":
+        var = node.childs[0].label
+        var_table[var] = evaluate_node(node.childs[1], var_table)
         return var_table[var]
+    elif node.label == "for":
+        counter_name = node.childs[0].label
+        times_to_run = node.childs[1].label
+        for x in range(int(times_to_run)):
+            var_table[counter_name] = x
+            evaluate_node(node.childs[2], var_table)
+    elif node.is_function:
+        func_name = node.label
+        if func_name == "print_var":
+            print(evaluate_node(node.childs[0], var_table))
     elif node.operator:
         if node.label == "+":
-            return evaluate_node(node.left, var_table) + evaluate_node(node.right, var_table)
+            return evaluate_node(node.childs[0], var_table) + evaluate_node(node.childs[1], var_table)
         elif node.label == "-":
-            return evaluate_node(node.left, var_table) - evaluate_node(node.right, var_table)
+            return evaluate_node(node.childs[0], var_table) - evaluate_node(node.childs[1], var_table)
         elif node.label == "*":
-            return evaluate_node(node.left, var_table) * evaluate_node(node.right, var_table)
+            return evaluate_node(node.childs[0], var_table) * evaluate_node(node.childs[1], var_table)
         elif node.label == "/":
-            return evaluate_node(node.left, var_table) / evaluate_node(node.right, var_table)
+            return evaluate_node(node.childs[0], var_table) / evaluate_node(node.childs[1], var_table)
     else:
         if node.is_variable:
             return var_table[node.label]

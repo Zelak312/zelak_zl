@@ -1,14 +1,27 @@
 """
-Expression = Assignation|Math
-Assignation = alphabetics+"="+Math
+a + 1
+1 + 1
+a = 1 + 2
+pl(a)
+for x in 5 {
 
+}
+
+1 + 2 + 3 + 4
+-|
+
+Scope = (Loop|Statement)*
+Loop = "for"+VariableName+Number+"{"+(Scope)*+"}"
+Statement = (Function|Expression|Math)
+Function = AnyType"("+AnyType+")"
+Expression = AnyType+"="+Math
 Math = PowDiv+("+"|"-"+PowDiv)*
 PowDiv = Parenthese+("*"|"/"+Parenthese)*
-Parenthese = ("("+Math+")")|Input
+Parenthese = ("("+Math+")")|AnyType
+---
+AnyType = VariableName|Number
+VariableName = (Alphabet+(Number+Alphabet)*)
 
-Input = Numbers|Alphabetics
-Numbers = numbers
-Alphabetics = alphabetics
 """
 
 from parser import Parser
@@ -19,86 +32,140 @@ class CustomParser(Parser):
     def start(self, text):
         self.pos = 0
         self.text = text
-        return self.expression()
+        return self.scope()
 
-    def expression(self):
-        try:
-            found = self.assignation()
-        except:
-            found = self.math()
-
-        return found
-
-    def assignation(self):
-        left = Node(self.alphabetics())
-        root = Node(self.keyword(["="]))
-        root.left = left
-        root.right = self.math()
+    def scope(self):
+        root = Node("scope")
+        while True:
+            try:
+                root.childs.append(self.loop())
+            except:
+                try:
+                    root.childs.append(self.statement())
+                except:
+                    break
 
         return root
 
-    def math(self):
-        left = self.pow_div()
+    # Loop = "for"+VariableName+Number+"{"+(Scope)*+"}"
+    def loop(self):
+        self.keyword(["for"])
+        var_name = self.variable_name()
+        self.keyword(["in"])
+        var_loop_time = self.number()
+        self.keyword(["{"])
+        scope = self.scope()
+        self.keyword(["}"])
+
+        root = Node("for")
+        root.childs.append(var_name)
+        root.childs.append(var_loop_time)
+        root.childs.append(scope)
+        return root
+
+    # Statement = (Function|Expression|Math)
+    def statement(self):
+        result = self.function()
+        if result[0]:
+            return result[1]
+
+        result = self.expression(result[1])
+        if result[0]:
+            return result[1]
+
+        return self.math(result[1])
+
+    # Function = AnyType"("+AnyType+")"
+    def function(self):
+        func_name = self.any_type()
+        if self.maybe_keyword(["("]) is None:
+            return (False, func_name)
+        argument = self.any_type()
+        self.keyword([")"])
+        func_name.is_function = True
+        func_name.childs.append(argument)
+        return (True, func_name)
+
+    # Expression = AnyType+"="+Math
+    def expression(self, any_type = None):
+        if any_type == None:
+            var_name = self.any_type()
+        else:
+            var_name = any_type
+        if self.maybe_keyword(["="]) is None:
+            return (False, var_name)
+        content = self.math()
+        root = Node("=")
+        root.childs.append(var_name)
+        root.childs.append(content)
+        return (True, root)
+
+    # Math = PowDiv+("+"|"-"+PowDiv)*
+    def math(self, any_type = None):
+        result = self.pow_div(any_type)
         op = self.maybe_keyword(["+", "-"])
         if op != None:
             root = Node(op)
-            root.left = left
-            root.right = self.math()
+            root.childs.append(result)
+            root.childs.append(self.math())
             return root
         
-        return left
+        return result
 
-    def pow_div(self):
-        left = self.parenthese()
+    # PowDiv = Parenthese+("*"|"/"+Parenthese)*
+    def pow_div(self, any_type = None):
+        result = self.parenthese(any_type)
         op = self.maybe_keyword(["*", "/"])
         if op != None:
             root = Node(op)
-            root.left = left
-            root.right = self.pow_div()
+            root.childs.append(result)
+            root.childs.append(self.pow_div())
             return root
         
-        return left
+        return result
 
-    def parenthese(self):
-        try:
-            self.keyword(["("])
+    # Parenthese = ("("+Math+")")|AnyType
+    def parenthese(self, any_type = None):
+        if self.maybe_keyword(["("]):
             math = self.math()
             self.keyword([")"])
             return math
-        except:
-            return self.input()
+        elif any_type != None:
+            return any_type
+        return self.any_type()
 
-    def input(self):
+    # AnyType = VariableName|Number
+    def any_type(self):
         try:
-            return Node(self.numbers())
+            return self.variable_name()
         except:
-            return Node(self.alphabetics(), True)
-    
-    def numbers(self):
+            return self.number()
+
+    # VariableName = (Alphabet+(Number|Alphabet)*)
+    def variable_name(self):
+        var_name = ""
+        found = self.char(["A-Z", "a-z", "_"])
+        while found != None:
+            var_name += found
+            found = self.maybe_char(["A-Z", "a-z", "_", "0-9"])
+        
+        return Node(var_name, True)
+
+    def number(self):
         number = ""
         found = self.char(["0-9"])
         while found != None:
             number += found
             found = self.maybe_char(["0-9"])
 
-        return float(number)
-
-    def alphabetics(self):
-        alpha = ""
-        found = self.char(["A-Z", "a-z"])
-        while found != None:
-            alpha += found
-            found = self.maybe_char(["A-Z", "a-z"])
-
-        return alpha
+        return Node(float(number))
 
 parser = CustomParser()
 var_table = {}
 
-while True:
-    t = input()
-    # Parse input and create ast
-    ast = parser.start(t)
-    # evaluate ast
-    result = evaluate_node(ast, var_table)
-    print("> " + str(result))
+with open('test.zl') as f:
+    code = f.read()
+    ast = parser.start(code)
+    evaluate_node(ast, var_table)
+
+print("dd")
