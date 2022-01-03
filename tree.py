@@ -7,6 +7,9 @@ def evaluate_node(node, var_table):
         var = node.childs[0].label
         var_table[var] = evaluate_node(node.childs[1], var_table)
         return var_table[var]
+    elif node.label == "if":
+        if evaluate_node(node.childs[0], var_table):
+            evaluate_node(node.childs[1], var_table)
     elif node.label == "for":
         counter_name = node.childs[0].label
         times_to_run = node.childs[1].label
@@ -42,6 +45,14 @@ def evaluate_node(node, var_table):
             if type(left) is str or type(right) is str:
                 raise Exception("Cannot use '/' operator with string")
             return left / right
+        elif node.label == "<":
+            return evaluate_node(node.childs[0], var_table) < evaluate_node(node.childs[1], var_table)
+        elif node.label == ">":
+            return evaluate_node(node.childs[0], var_table) > evaluate_node(node.childs[1], var_table)
+        elif node.label == "==":
+            return evaluate_node(node.childs[0], var_table) == evaluate_node(node.childs[1], var_table)
+        elif node.label == "!=":
+            return evaluate_node(node.childs[0], var_table) != evaluate_node(node.childs[1], var_table)
     else:
         if node.is_variable:
             return var_table[node.label]

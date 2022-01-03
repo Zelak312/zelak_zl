@@ -10,8 +10,10 @@ for x in 5 {
 1 + 2 + 3 + 4
 -|
 
-Scope = (Loop|Statement)*
+Scope = (Loop|Condition|Statement)*
 Loop = "for"+VariableName+Number+"{"+(Scope)*+"}"
+Condition = "if"+Conditional+"{"+(Scope)*+"}"
+Conditional = Math+(<|>|==|!=)+Math
 Statement = (Function|Expression|Math)
 Function = AnyType"("+AnyType+")"
 Expression(AnyType) = AnyType+"="+Math
@@ -33,6 +35,7 @@ class CustomParser(Parser):
         self.text = text
         return self.scope()
 
+    # Scope = (Loop|Condition|Statement)*
     def scope(self):
         root = Node("scope", scope=True)
         while True:
@@ -40,9 +43,12 @@ class CustomParser(Parser):
                 root.childs.append(self.loop())
             except:
                 try:
-                    root.childs.append(self.statement())
+                    root.childs.append(self.condition())
                 except:
-                    break
+                    try:
+                        root.childs.append(self.statement())
+                    except:
+                        break
 
         return root
 
@@ -61,6 +67,29 @@ class CustomParser(Parser):
         root.childs.append(var_loop_time)
         root.childs.append(scope)
         return root
+
+    # Condition = "if"+Conditional+"{"+(Scope)*+"}"
+    def condition(self):
+        self.keyword(["if"])
+        conditional = self.conditional()
+        self.keyword(["{"])
+        scope = self.scope()
+        self.keyword(["}"])
+
+        root = Node("if")
+        root.childs.append(conditional)
+        root.childs.append(scope)
+        return root
+
+    # Conditional = Math+(<|>|==|!=)+Math
+    def conditional(self):
+        left = self.math()
+        op = Node(self.keyword(["<", ">", "==", "!="]))
+        right = self.math()
+
+        op.childs.append(left)
+        op.childs.append(right)
+        return op
 
     # Statement = (Function|Expression|Math)
     def statement(self):
@@ -202,5 +231,3 @@ with open('test.zl') as f:
     code = f.read()
     ast = parser.start(code)
     evaluate_node(ast, var_table)
-
-print("dd")

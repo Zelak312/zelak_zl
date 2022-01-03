@@ -15,3 +15,11 @@ class Node:
             self.operator = True
         elif label == "/":
             self.operator = True
+        elif label == "<":
+            self.operator = True
+        elif label == ">":
+            self.operator = True
+        elif label == "==":
+            self.operator = True
+        elif label == "!=":
+            self.operator = True
