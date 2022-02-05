@@ -4,7 +4,9 @@ use super::baseParser::BaseParser;
 use super::lexer::Lexer;
 use super::token::Type;
 
+use crate::token::Token;
 use crate::zl_nodes::zassignment::ZAssignment;
+use crate::zl_nodes::zbin_op::ZBinOp;
 use crate::zl_nodes::zexpr::ZExpr;
 use crate::zl_nodes::zfunction_call::ZFunctionCall;
 use crate::zl_nodes::ziden::ZIden;
@@ -16,12 +18,16 @@ pub struct Parser {
 }
 
 /*
-expr = (FuncCall|Statement)*
+Expr = (FuncCall|Statement)*
 FuncCall = ([PrintK]|[Iden])+Parameters
-Parameters = [LParen]+AllType([Comma]+AllType)*+[RParen]
-Statement = Declare+[Equal]+AllType
+Parameters = [LParen]+MathOrString([Comma]+MathOrString)*+[RParen]
+Statement = Declare+[Equal]+MathOrString
 Declare = ([ConstK]|[LetK])?+[Iden]
-AllType = ([Iden]|[String]|[Num])
+MathType = ([Iden]|[Num])
+
+BinOp = ([Add]|[Min]|[Multi]|[Div])
+MathOrString = (MathExpr|[String])
+MathExpr = [LParen]?+MathType+(BinOp+MathExpr)*[RParen]?
 */
 
 impl Parser {
@@ -70,9 +76,9 @@ impl Parser {
     fn parameters(&mut self) -> Result<Vec<Box<dyn Any>>, String> {
         self.base.eat(Type::LParen)?;
         let mut params = vec![];
-        params.push(self.all_type()?);
+        params.push(self.math_or_string()?);
         while let Ok(_) = self.base.eat(Type::Comma) {
-            params.push(self.all_type()?);
+            params.push(self.math_or_string()?);
         }
         self.base.eat(Type::RParen)?;
 
@@ -82,7 +88,7 @@ impl Parser {
     fn statement(&mut self) -> Result<Box<ZAssignment>, String> {
         let declare = self.declare()?;
         self.base.eat(Type::Equal)?;
-        let all_type = self.all_type()?;
+        let all_type = self.math_or_string()?;
 
         return Ok(Box::new(ZAssignment {
             declare_type: declare.0,
@@ -102,11 +108,10 @@ impl Parser {
         return Ok(Box::new((token, iden.val)));
     }
 
-    fn all_type(&mut self) -> Result<Box<dyn Any>, String> {
-        let token = self.base.eat_mult(&[Type::Iden, Type::String, Type::Num])?;
+    fn math_type(&mut self) -> Result<Box<dyn Any>, String> {
+        let token = self.base.eat_mult(&[Type::Iden, Type::Num])?;
         let node: Option<Box<dyn Any>> = match token._type {
             Type::Iden => Some(Box::new(ZIden { name: token.val })),
-            Type::String => Some(Box::new(ZString { val: token.val })),
             Type::Num => Some(Box::new(ZNumber {
                 val: token.val.parse().unwrap(),
             })),
@@ -118,5 +123,42 @@ impl Parser {
         }
 
         return Ok(node.unwrap());
+    }
+
+    fn bin_op(&mut self) -> Result<Token, String> {
+        return self
+            .base
+            .eat_mult(&[Type::Add, Type::Min, Type::Mul, Type::Div]);
+    }
+
+    fn math_or_string(&mut self) -> Result<Box<dyn Any>, String> {
+        let math_expr = self.math_expr();
+        if math_expr.is_ok() {
+            return math_expr;
+        }
+
+        return Ok(Box::new(ZString {
+            val: self.base.eat(Type::String).unwrap().val,
+        }));
+    }
+
+    fn math_expr(&mut self) -> Result<Box<dyn Any>, String> {
+        let lparen = self.base.eat(Type::LParen);
+        let math_type = self.math_type()?;
+        if let Ok(bin_op) = self.bin_op() {
+            let right = self.math_expr()?;
+            if lparen.is_ok() {
+                self.base.eat(Type::RParen)?;
+            }
+
+            return Ok(Box::new(ZBinOp {
+                op: bin_op.val,
+                parenthese: lparen.is_ok(),
+                left: math_type,
+                right,
+            }));
+        } else {
+            return Ok(math_type);
+        }
     }
 }
