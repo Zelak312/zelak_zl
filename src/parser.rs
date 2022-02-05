@@ -55,22 +55,17 @@ impl Parser {
     }
 
     fn func_call(&mut self) -> Result<Box<ZFunction_call>, String> {
-        let func_name = match self.base.get_current()._type {
-            Type::PrintK => {
-                self.base.eat(Type::PrintK).unwrap();
-                Some("print".to_owned())
-            }
-            Type::Iden => Some(self.base.eat(Type::Iden).unwrap().val),
-            _ => None,
-        }
-        .ok_or("Couldn't find print or iden")?;
+        let func_token = self
+            .base
+            .eat_mult(&[Type::PrintK, Type::Iden])
+            .or(Err("Couldn't find print or iden"))?;
 
         self.base.eat(Type::LParen)?;
         let all_type = self.all_type()?;
         self.base.eat(Type::RParen)?;
 
         return Ok(Box::new(ZFunction_call {
-            func_name,
+            func_name: func_token.val,
             parameters: { vec![all_type] },
         }));
     }
@@ -88,34 +83,31 @@ impl Parser {
     }
 
     fn declare(&mut self) -> Result<Box<(Option<Type>, String)>, String> {
-        let token = match self.base.get_current()._type {
-            Type::ConstK => Some(self.base.eat(Type::ConstK).unwrap()._type),
-            Type::LetK => Some(self.base.eat(Type::LetK).unwrap()._type),
-            _ => None,
-        };
+        let token = self
+            .base
+            .eat_mult(&[Type::ConstK, Type::LetK])
+            .ok()
+            .and_then(|t| Some(t._type));
 
         let iden = self.base.eat(Type::Iden)?;
         return Ok(Box::new((token, iden.val)));
     }
 
     fn all_type(&mut self) -> Result<Box<dyn Any>, String> {
-        let _type: Option<Box<dyn Any>> = match self.base.get_current()._type {
-            Type::Iden => Some(Box::new(ZIden {
-                name: self.base.eat(Type::Iden).unwrap().val,
-            })),
-            Type::String => Some(Box::new(ZString {
-                val: self.base.eat(Type::String).unwrap().val,
-            })),
+        let token = self.base.eat_mult(&[Type::Iden, Type::String, Type::Num])?;
+        let node: Option<Box<dyn Any>> = match token._type {
+            Type::Iden => Some(Box::new(ZIden { name: token.val })),
+            Type::String => Some(Box::new(ZString { val: token.val })),
             Type::Num => Some(Box::new(ZNumber {
-                val: self.base.eat(Type::Num).unwrap().val.parse().unwrap(),
+                val: token.val.parse().unwrap(),
             })),
             _ => None,
         };
 
-        if _type.is_none() {
+        if node.is_none() {
             return Err("Didn't find type in all_type".to_string());
         }
 
-        return Ok(_type.unwrap());
+        return Ok(node.unwrap());
     }
 }

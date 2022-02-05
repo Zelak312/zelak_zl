@@ -1,4 +1,2 @@
 const nice = "10"
-const t = nice
-const nice = 20
 print(nice)

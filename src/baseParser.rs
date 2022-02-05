@@ -40,4 +40,18 @@ impl BaseParser {
 
         return Err(String::from("Not matching type"));
     }
+
+    pub fn eat_mult(&mut self, _types: &[Type]) -> Result<Token, String> {
+        let mut last_err = Err("Nothing passed in".to_owned());
+        for _type in _types {
+            let token = self.eat(_type.to_owned());
+            if token.is_ok() {
+                return token;
+            }
+
+            last_err = token;
+        }
+
+        return last_err;
+    }
 }
