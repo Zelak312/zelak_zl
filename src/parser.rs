@@ -55,7 +55,6 @@ impl Parser {
         return Ok(Box::new(expr));
     }
 
-    // FuncCall = ([PrintK]|[Iden])+Parameters
     fn func_call(&mut self) -> Result<Box<ZFunction_call>, String> {
         let func_token = self
             .base

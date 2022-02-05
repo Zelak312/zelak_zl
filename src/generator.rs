@@ -18,8 +18,16 @@ pub fn generate_code(root: Box<dyn Any>) -> Box<String> {
             str += &(generate_code(child).to_string() + "\n");
         }
     } else if actual_id == TypeId::of::<BEcho>() {
-        let b_echo = root.downcast::<BEcho>().unwrap();
-        str += &("echo ".to_string() + &generate_code(b_echo.to_echo));
+        let mut b_echo = root.downcast::<BEcho>().unwrap();
+        if b_echo.to_echo.len() == 1 {
+            str += &("echo ".to_string() + &generate_code(b_echo.to_echo.remove(0)));
+        } else {
+            str += &("printf \"".to_string() + &"%s, ".repeat(b_echo.to_echo.len() - 1));
+            str += &("%s\\n\"");
+            for param in b_echo.to_echo {
+                str += &(" ".to_string() + &generate_code(param));
+            }
+        }
     } else if actual_id == TypeId::of::<BAssignment>() {
         let b_assignment = root.downcast::<BAssignment>().unwrap();
         str += &(b_assignment.iden + "=" + &generate_code(b_assignment.content));

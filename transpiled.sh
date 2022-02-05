@@ -1,5 +1,4 @@
 #!/bin/bash
 nice="10"
-yeet=$nice
-echo $nice
-echo $yeet
+yeet=20
+printf "%s, %s, %s, %s\n" $nice $yeet 10 "neat"

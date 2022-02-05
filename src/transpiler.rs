@@ -31,9 +31,11 @@ fn tr_r(root: Box<dyn Any>) -> Box<dyn Any> {
         return Box::new(bash_expr);
     } else if actual_id == TypeId::of::<ZFunction_call>() {
         let mut z_func_call = root.downcast::<ZFunction_call>().unwrap();
-        return Box::new(BEcho {
-            to_echo: tr_r(z_func_call.parameters.remove(0)),
-        });
+        let mut params = vec![];
+        for param in z_func_call.parameters {
+            params.push(tr_r(param));
+        }
+        return Box::new(BEcho { to_echo: params });
     } else if actual_id == TypeId::of::<ZAssignment>() {
         let z_assignment = root.downcast::<ZAssignment>().unwrap();
         return Box::new(BAssignment {
