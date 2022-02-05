@@ -5,12 +5,12 @@ use std::{
 
 use crate::{
     bash_nodes::{
-        bassignment::BAssignment, becho::BEcho, bexpr::BExpr, biden::BIden, bnumber::BNumber,
-        bprogram::BProgram, bstring::BString,
+        bassignment::BAssignment, bbin_op::BBinOp, becho::BEcho, bexpr::BExpr, biden::BIden,
+        bnumber::BNumber, bprogram::BProgram, bstring::BString,
     },
     zl_nodes::{
-        zassignment::ZAssignment, zexpr::ZExpr, zfunction_call::ZFunctionCall, ziden::ZIden,
-        znumber::ZNumber, zstring::ZString,
+        zassignment::ZAssignment, zbin_op::ZBinOp, zexpr::ZExpr, zfunction_call::ZFunctionCall,
+        ziden::ZIden, znumber::ZNumber, zstring::ZString,
     },
 };
 
@@ -41,6 +41,14 @@ fn tr_r(root: Box<dyn Any>) -> Box<dyn Any> {
         return Box::new(BAssignment {
             iden: z_assignment.iden,
             content: tr_r(z_assignment.content),
+        });
+    } else if actual_id == TypeId::of::<ZBinOp>() {
+        let z_bin_op = root.downcast::<ZBinOp>().unwrap();
+        return Box::new(BBinOp {
+            op: z_bin_op.op,
+            parenthese: z_bin_op.parenthese,
+            left: z_bin_op.left,
+            right: z_bin_op.right,
         });
     } else if actual_id == TypeId::of::<ZIden>() {
         let z_iden = root.downcast::<ZIden>().unwrap();

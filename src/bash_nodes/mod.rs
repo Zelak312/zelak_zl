@@ -1,4 +1,5 @@
 pub mod bassignment;
+pub mod bbin_op;
 pub mod becho;
 pub mod bexpr;
 pub mod biden;
