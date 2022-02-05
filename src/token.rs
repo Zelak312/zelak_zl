@@ -15,6 +15,7 @@ pub enum Type {
     RAngleBracket,
 
     Dot,
+    Comma,
     ExclaMark,
     Equal,
     BinAnd,

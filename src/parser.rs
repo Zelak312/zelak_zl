@@ -17,7 +17,8 @@ pub struct Parser {
 
 /*
 expr = (FuncCall|Statement)*
-FuncCall = ([PrintK]|[Iden])+[LParen]+AllType+[RParen] TODO: support more args
+FuncCall = ([PrintK]|[Iden])+Parameters TODO: support more args
+Parameters = [LParen]+AllType([comma]+AllType)*+[RParen]
 Statement = Declare+[Equal]+AllType
 Declare = ([ConstK]|[LetK])?+[Iden]
 AllType = ([Iden]|[String]|[Num])

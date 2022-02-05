@@ -143,6 +143,7 @@ impl Lexer {
             '[' => Some(Type::LAngleBracket),
             ']' => Some(Type::RAngleBracket),
             '.' => Some(Type::Dot),
+            ',' => Some(Type::Comma),
             '!' => Some(Type::ExclaMark),
             '=' => Some(Type::Equal),
             '>' => Some(Type::Gt),
