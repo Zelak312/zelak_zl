@@ -6,11 +6,11 @@ use std::{
 use crate::{
     bash_nodes::{
         bassignment::BAssignment, bbin_op::BBinOp, becho::BEcho, bexpr::BExpr, biden::BIden,
-        bnumber::BNumber, bprogram::BProgram, bstring::BString,
+        bmath_expr::BMathExpr, bnumber::BNumber, bprogram::BProgram, bstring::BString,
     },
     zl_nodes::{
         zassignment::ZAssignment, zbin_op::ZBinOp, zexpr::ZExpr, zfunction_call::ZFunctionCall,
-        ziden::ZIden, znumber::ZNumber, zstring::ZString,
+        ziden::ZIden, zmath_expr::ZMathExpr, znumber::ZNumber, zstring::ZString,
     },
 };
 
@@ -41,6 +41,11 @@ fn tr_r(root: Box<dyn Any>) -> Box<dyn Any> {
         return Box::new(BAssignment {
             iden: z_assignment.iden,
             content: tr_r(z_assignment.content),
+        });
+    } else if actual_id == TypeId::of::<ZMathExpr>() {
+        let z_math_expr = root.downcast::<ZMathExpr>().unwrap();
+        return Box::new(BMathExpr {
+            content: tr_r(z_math_expr.content),
         });
     } else if actual_id == TypeId::of::<ZBinOp>() {
         let z_bin_op = root.downcast::<ZBinOp>().unwrap();

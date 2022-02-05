@@ -3,6 +3,7 @@ pub mod bbin_op;
 pub mod becho;
 pub mod bexpr;
 pub mod biden;
+pub mod bmath_expr;
 pub mod bnumber;
 pub mod bprogram;
 pub mod bstring;

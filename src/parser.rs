@@ -10,6 +10,7 @@ use crate::zl_nodes::zbin_op::ZBinOp;
 use crate::zl_nodes::zexpr::ZExpr;
 use crate::zl_nodes::zfunction_call::ZFunctionCall;
 use crate::zl_nodes::ziden::ZIden;
+use crate::zl_nodes::zmath_expr::ZMathExpr;
 use crate::zl_nodes::znumber::ZNumber;
 use crate::zl_nodes::zstring::ZString;
 
@@ -134,7 +135,9 @@ impl Parser {
     fn math_or_string(&mut self) -> Result<Box<dyn Any>, String> {
         let math_expr = self.math_expr();
         if math_expr.is_ok() {
-            return math_expr;
+            return Ok(Box::new(ZMathExpr {
+                content: math_expr.unwrap(),
+            }));
         }
 
         return Ok(Box::new(ZString {
