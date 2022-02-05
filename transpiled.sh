@@ -1,3 +1,3 @@
 #!/bin/bash
-nice=
+nice=10+1
 echo $nice

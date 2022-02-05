@@ -47,8 +47,8 @@ fn tr_r(root: Box<dyn Any>) -> Box<dyn Any> {
         return Box::new(BBinOp {
             op: z_bin_op.op,
             parenthese: z_bin_op.parenthese,
-            left: z_bin_op.left,
-            right: z_bin_op.right,
+            left: tr_r(z_bin_op.left),
+            right: tr_r(z_bin_op.right),
         });
     } else if actual_id == TypeId::of::<ZIden>() {
         let z_iden = root.downcast::<ZIden>().unwrap();

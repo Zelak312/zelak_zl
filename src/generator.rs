@@ -1,8 +1,8 @@
 use std::any::{Any, TypeId};
 
 use crate::bash_nodes::{
-    bassignment::BAssignment, becho::BEcho, bexpr::BExpr, biden::BIden, bnumber::BNumber,
-    bprogram::BProgram, bstring::BString,
+    bassignment::BAssignment, bbin_op::BBinOp, becho::BEcho, bexpr::BExpr, biden::BIden,
+    bnumber::BNumber, bprogram::BProgram, bstring::BString,
 };
 
 pub fn generate_code(root: Box<dyn Any>) -> Box<String> {
@@ -31,6 +31,14 @@ pub fn generate_code(root: Box<dyn Any>) -> Box<String> {
     } else if actual_id == TypeId::of::<BAssignment>() {
         let b_assignment = root.downcast::<BAssignment>().unwrap();
         str += &(b_assignment.iden + "=" + &generate_code(b_assignment.content));
+    } else if actual_id == TypeId::of::<BBinOp>() {
+        let b_op = root.downcast::<BBinOp>().unwrap();
+        let mid = &(generate_code(b_op.left).to_string() + &b_op.op + &generate_code(b_op.right));
+        if b_op.parenthese {
+            str += &("(".to_string() + mid + ")")
+        } else {
+            str += mid;
+        }
     } else if actual_id == TypeId::of::<BIden>() {
         let b_iden = root.downcast::<BIden>().unwrap();
         str += &("$".to_string() + &b_iden.name);
