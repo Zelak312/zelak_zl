@@ -17,8 +17,8 @@ pub struct Parser {
 
 /*
 expr = (FuncCall|Statement)*
-FuncCall = ([PrintK]|[Iden])+Parameters TODO: support more args
-Parameters = [LParen]+AllType([comma]+AllType)*+[RParen]
+FuncCall = ([PrintK]|[Iden])+Parameters
+Parameters = [LParen]+AllType([Comma]+AllType)*+[RParen]
 Statement = Declare+[Equal]+AllType
 Declare = ([ConstK]|[LetK])?+[Iden]
 AllType = ([Iden]|[String]|[Num])
@@ -55,20 +55,29 @@ impl Parser {
         return Ok(Box::new(expr));
     }
 
+    // FuncCall = ([PrintK]|[Iden])+Parameters
     fn func_call(&mut self) -> Result<Box<ZFunction_call>, String> {
         let func_token = self
             .base
             .eat_mult(&[Type::PrintK, Type::Iden])
             .or(Err("Couldn't find print or iden"))?;
 
-        self.base.eat(Type::LParen)?;
-        let all_type = self.all_type()?;
-        self.base.eat(Type::RParen)?;
-
         return Ok(Box::new(ZFunction_call {
             func_name: func_token.val,
-            parameters: { vec![all_type] },
+            parameters: { self.parameters()? },
         }));
+    }
+
+    fn parameters(&mut self) -> Result<Vec<Box<dyn Any>>, String> {
+        self.base.eat(Type::LParen)?;
+        let mut params = vec![];
+        params.push(self.all_type()?);
+        while let Ok(_) = self.base.eat(Type::Comma) {
+            params.push(self.all_type()?);
+        }
+        self.base.eat(Type::RParen)?;
+
+        return Ok(params);
     }
 
     fn statement(&mut self) -> Result<Box<ZAssignment>, String> {
