@@ -6,7 +6,7 @@ use super::token::Type;
 
 use crate::zl_nodes::zassignment::ZAssignment;
 use crate::zl_nodes::zexpr::ZExpr;
-use crate::zl_nodes::zfunction_call::ZFunction_call;
+use crate::zl_nodes::zfunction_call::ZFunctionCall;
 use crate::zl_nodes::ziden::ZIden;
 use crate::zl_nodes::znumber::ZNumber;
 use crate::zl_nodes::zstring::ZString;
@@ -55,13 +55,13 @@ impl Parser {
         return Ok(Box::new(expr));
     }
 
-    fn func_call(&mut self) -> Result<Box<ZFunction_call>, String> {
+    fn func_call(&mut self) -> Result<Box<ZFunctionCall>, String> {
         let func_token = self
             .base
             .eat_mult(&[Type::PrintK, Type::Iden])
             .or(Err("Couldn't find print or iden"))?;
 
-        return Ok(Box::new(ZFunction_call {
+        return Ok(Box::new(ZFunctionCall {
             func_name: func_token.val,
             parameters: { self.parameters()? },
         }));

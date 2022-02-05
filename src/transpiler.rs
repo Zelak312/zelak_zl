@@ -9,7 +9,7 @@ use crate::{
         bprogram::BProgram, bstring::BString,
     },
     zl_nodes::{
-        zassignment::ZAssignment, zexpr::ZExpr, zfunction_call::ZFunction_call, ziden::ZIden,
+        zassignment::ZAssignment, zexpr::ZExpr, zfunction_call::ZFunctionCall, ziden::ZIden,
         znumber::ZNumber, zstring::ZString,
     },
 };
@@ -29,8 +29,8 @@ fn tr_r(root: Box<dyn Any>) -> Box<dyn Any> {
         }
 
         return Box::new(bash_expr);
-    } else if actual_id == TypeId::of::<ZFunction_call>() {
-        let mut z_func_call = root.downcast::<ZFunction_call>().unwrap();
+    } else if actual_id == TypeId::of::<ZFunctionCall>() {
+        let z_func_call = root.downcast::<ZFunctionCall>().unwrap();
         let mut params = vec![];
         for param in z_func_call.parameters {
             params.push(tr_r(param));

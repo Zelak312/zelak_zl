@@ -1,6 +1,6 @@
 use std::any::Any;
 
-pub struct ZFunction_call {
+pub struct ZFunctionCall {
     pub func_name: String,
     pub parameters: Vec<Box<dyn Any>>,
 }
