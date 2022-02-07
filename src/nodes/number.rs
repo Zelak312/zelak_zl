@@ -1,3 +1,3 @@
-pub struct Number {
+pub struct NNumber {
     pub val: f64,
 }
