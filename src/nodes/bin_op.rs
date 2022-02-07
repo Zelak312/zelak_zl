@@ -1,6 +1,6 @@
 use std::any::Any;
 
-pub struct ZBinOp {
+pub struct BinOp {
     pub op: String,
     pub parenthese: bool,
     pub left: Box<dyn Any>,

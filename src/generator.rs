@@ -1,8 +1,10 @@
 use std::any::{Any, TypeId};
 
-use crate::bash_nodes::{
-    bassignment::BAssignment, bbin_op::BBinOp, becho::BEcho, bexpr::BExpr, biden::BIden,
-    bmath_expr::BMathExpr, bnumber::BNumber, bprogram::BProgram, bstring::BString,
+use crate::{
+    bash_nodes::{
+        bassignment::BAssignment, becho::BEcho, bmath_expr::BMathExpr, bprogram::BProgram,
+    },
+    nodes::{bin_op::BinOp, expr::Expr, iden::Iden, number::Number, string::NString},
 };
 
 pub fn generate_code(root: Box<dyn Any>) -> Box<String> {
@@ -12,8 +14,8 @@ pub fn generate_code(root: Box<dyn Any>) -> Box<String> {
         let bash_program = root.downcast::<BProgram>().unwrap();
         str += "#!/bin/bash\n";
         str += &generate_code(bash_program.b_expr);
-    } else if actual_id == TypeId::of::<BExpr>() {
-        let b_expr = root.downcast::<BExpr>().unwrap();
+    } else if actual_id == TypeId::of::<Expr>() {
+        let b_expr = root.downcast::<Expr>().unwrap();
         for child in b_expr.childs {
             str += &(generate_code(child).to_string() + "\n");
         }
@@ -34,8 +36,8 @@ pub fn generate_code(root: Box<dyn Any>) -> Box<String> {
     } else if actual_id == TypeId::of::<BMathExpr>() {
         let b_math_expr = root.downcast::<BMathExpr>().unwrap();
         str += &("$(expr ".to_string() + &generate_code(b_math_expr.content) + ")");
-    } else if actual_id == TypeId::of::<BBinOp>() {
-        let b_op = root.downcast::<BBinOp>().unwrap();
+    } else if actual_id == TypeId::of::<BinOp>() {
+        let b_op = root.downcast::<BinOp>().unwrap();
         let mid = &(generate_code(b_op.left).to_string()
             + " "
             + match b_op.op.as_str() {
@@ -49,14 +51,14 @@ pub fn generate_code(root: Box<dyn Any>) -> Box<String> {
         } else {
             str += mid;
         }
-    } else if actual_id == TypeId::of::<BIden>() {
-        let b_iden = root.downcast::<BIden>().unwrap();
+    } else if actual_id == TypeId::of::<Iden>() {
+        let b_iden = root.downcast::<Iden>().unwrap();
         str += &("$".to_string() + &b_iden.name);
-    } else if actual_id == TypeId::of::<BString>() {
-        let b_string = root.downcast::<BString>().unwrap();
+    } else if actual_id == TypeId::of::<NString>() {
+        let b_string = root.downcast::<NString>().unwrap();
         str += &("\"".to_string() + &b_string.val + "\"");
-    } else if actual_id == TypeId::of::<BNumber>() {
-        let b_number = root.downcast::<BNumber>().unwrap();
+    } else if actual_id == TypeId::of::<Number>() {
+        let b_number = root.downcast::<Number>().unwrap();
         str += &b_number.val.to_string();
     }
 

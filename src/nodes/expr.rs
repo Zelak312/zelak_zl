@@ -1,4 +1,4 @@
 use std::any::Any;
-pub struct ZExpr {
+pub struct Expr {
     pub childs: Vec<Box<dyn Any>>,
 }

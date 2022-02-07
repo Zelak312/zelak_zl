@@ -1,3 +1,3 @@
-pub struct ZString {
+pub struct NString {
     pub val: String,
 }

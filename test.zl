@@ -1,2 +1,3 @@
 const nice = 10 + 2 * 2
-print(nice)
+const other = nice * 5
+print(nice, other)

@@ -1,3 +1,4 @@
 #!/bin/bash
 nice=$(expr 10 + 2 \* 2)
-echo $nice
+other=$(expr $nice \* 5)
+printf "%s, %s\n" $nice $other

@@ -4,14 +4,14 @@ use super::baseParser::BaseParser;
 use super::lexer::Lexer;
 use super::token::Type;
 
+use crate::nodes::assignment::Assignment;
+use crate::nodes::bin_op::BinOp;
+use crate::nodes::expr::Expr;
+use crate::nodes::function_call::FunctionCall;
+use crate::nodes::iden::Iden;
+use crate::nodes::number::Number;
+use crate::nodes::string::NString;
 use crate::token::Token;
-use crate::zl_nodes::zassignment::ZAssignment;
-use crate::zl_nodes::zbin_op::ZBinOp;
-use crate::zl_nodes::zexpr::ZExpr;
-use crate::zl_nodes::zfunction_call::ZFunctionCall;
-use crate::zl_nodes::ziden::ZIden;
-use crate::zl_nodes::znumber::ZNumber;
-use crate::zl_nodes::zstring::ZString;
 
 pub struct Parser {
     base: BaseParser,
@@ -37,14 +37,14 @@ impl Parser {
         };
     }
 
-    pub fn gen_ast(lexer: Lexer) -> Box<ZExpr> {
+    pub fn gen_ast(lexer: Lexer) -> Box<Expr> {
         let mut parser = Parser::new(lexer);
         return parser.expr().unwrap();
     }
 
-    fn expr(&mut self) -> Result<Box<ZExpr>, String> {
+    fn expr(&mut self) -> Result<Box<Expr>, String> {
         let mut current = self.base.get_current();
-        let mut expr = ZExpr { childs: vec![] };
+        let mut expr = Expr { childs: vec![] };
         while current._type != Type::EOL {
             let func_call = self.func_call();
             if func_call.is_ok() {
@@ -61,13 +61,13 @@ impl Parser {
         return Ok(Box::new(expr));
     }
 
-    fn func_call(&mut self) -> Result<Box<ZFunctionCall>, String> {
+    fn func_call(&mut self) -> Result<Box<FunctionCall>, String> {
         let func_token = self
             .base
             .eat_mult(&[Type::PrintK, Type::Iden])
             .or(Err("Couldn't find print or iden"))?;
 
-        return Ok(Box::new(ZFunctionCall {
+        return Ok(Box::new(FunctionCall {
             func_name: func_token.val,
             parameters: { self.parameters()? },
         }));
@@ -85,12 +85,12 @@ impl Parser {
         return Ok(params);
     }
 
-    fn statement(&mut self) -> Result<Box<ZAssignment>, String> {
+    fn statement(&mut self) -> Result<Box<Assignment>, String> {
         let declare = self.declare()?;
         self.base.eat(Type::Equal)?;
         let all_type = self.math_or_string()?;
 
-        return Ok(Box::new(ZAssignment {
+        return Ok(Box::new(Assignment {
             declare_type: declare.0,
             iden: declare.1,
             content: all_type,
@@ -111,8 +111,8 @@ impl Parser {
     fn math_type(&mut self) -> Result<Box<dyn Any>, String> {
         let token = self.base.eat_mult(&[Type::Iden, Type::Num])?;
         let node: Option<Box<dyn Any>> = match token._type {
-            Type::Iden => Some(Box::new(ZIden { name: token.val })),
-            Type::Num => Some(Box::new(ZNumber {
+            Type::Iden => Some(Box::new(Iden { name: token.val })),
+            Type::Num => Some(Box::new(Number {
                 val: token.val.parse().unwrap(),
             })),
             _ => None,
@@ -137,7 +137,7 @@ impl Parser {
             return math_expr;
         }
 
-        return Ok(Box::new(ZString {
+        return Ok(Box::new(NString {
             val: self.base.eat(Type::String).unwrap().val,
         }));
     }
@@ -151,7 +151,7 @@ impl Parser {
                 self.base.eat(Type::RParen)?;
             }
 
-            return Ok(Box::new(ZBinOp {
+            return Ok(Box::new(BinOp {
                 op: bin_op.val,
                 parenthese: lparen.is_ok(),
                 left: math_type,

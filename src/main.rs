@@ -2,10 +2,10 @@ mod baseParser;
 mod bash_nodes;
 mod generator;
 mod lexer;
+mod nodes;
 mod parser;
 mod token;
 mod transpiler;
-mod zl_nodes;
 
 use generator::generate_code;
 use lexer::Lexer;

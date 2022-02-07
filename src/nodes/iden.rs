@@ -1,3 +1,3 @@
-pub struct BIden {
+pub struct Iden {
     pub name: String,
 }
