@@ -1,3 +1,3 @@
 #!/bin/bash
-nice=$(expr 10 + 5 \* 2)
-echo $(expr $nice)
+nice=$(expr 10 + 2 \* 2)
+echo $nice

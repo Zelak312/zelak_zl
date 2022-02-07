@@ -10,22 +10,24 @@ use crate::{
     },
     zl_nodes::{
         zassignment::ZAssignment, zbin_op::ZBinOp, zexpr::ZExpr, zfunction_call::ZFunctionCall,
-        ziden::ZIden, zmath_expr::ZMathExpr, znumber::ZNumber, zstring::ZString,
+        ziden::ZIden, znumber::ZNumber, zstring::ZString,
     },
 };
 
 pub fn transpile(root: Box<ZExpr>) -> Box<BProgram> {
-    let b_program = BProgram { b_expr: tr_r(root) };
+    let b_program = BProgram {
+        b_expr: tr_r(root, false),
+    };
     return Box::new(b_program);
 }
 
-fn tr_r(root: Box<dyn Any>) -> Box<dyn Any> {
+fn tr_r(root: Box<dyn Any>, last_math: bool) -> Box<dyn Any> {
     let actual_id = (&*root).type_id();
     if actual_id == TypeId::of::<ZExpr>() {
         let mut bash_expr = BExpr { childs: vec![] };
         let z_expr = root.downcast::<ZExpr>().unwrap();
         for child in z_expr.childs {
-            bash_expr.childs.push(tr_r(child));
+            bash_expr.childs.push(tr_r(child, false));
         }
 
         return Box::new(bash_expr);
@@ -33,28 +35,28 @@ fn tr_r(root: Box<dyn Any>) -> Box<dyn Any> {
         let z_func_call = root.downcast::<ZFunctionCall>().unwrap();
         let mut params = vec![];
         for param in z_func_call.parameters {
-            params.push(tr_r(param));
+            params.push(tr_r(param, false));
         }
         return Box::new(BEcho { to_echo: params });
     } else if actual_id == TypeId::of::<ZAssignment>() {
         let z_assignment = root.downcast::<ZAssignment>().unwrap();
         return Box::new(BAssignment {
             iden: z_assignment.iden,
-            content: tr_r(z_assignment.content),
-        });
-    } else if actual_id == TypeId::of::<ZMathExpr>() {
-        let z_math_expr = root.downcast::<ZMathExpr>().unwrap();
-        return Box::new(BMathExpr {
-            content: tr_r(z_math_expr.content),
+            content: tr_r(z_assignment.content, false),
         });
     } else if actual_id == TypeId::of::<ZBinOp>() {
         let z_bin_op = root.downcast::<ZBinOp>().unwrap();
-        return Box::new(BBinOp {
+        let bin_op = Box::new(BBinOp {
             op: z_bin_op.op,
             parenthese: z_bin_op.parenthese,
-            left: tr_r(z_bin_op.left),
-            right: tr_r(z_bin_op.right),
+            left: tr_r(z_bin_op.left, true),
+            right: tr_r(z_bin_op.right, true),
         });
+        if last_math {
+            return bin_op;
+        }
+
+        return Box::new(BMathExpr { content: bin_op });
     } else if actual_id == TypeId::of::<ZIden>() {
         let z_iden = root.downcast::<ZIden>().unwrap();
         return Box::new(BIden { name: z_iden.name });
