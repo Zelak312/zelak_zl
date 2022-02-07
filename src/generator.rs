@@ -2,7 +2,7 @@ use std::any::{Any, TypeId};
 
 use crate::{
     bash_nodes::{
-        bassignment::BAssignment, becho::BEcho, bmath_expr::BMathExpr, bprogram::BProgram,
+        becho::BEcho, bmath_expr::BMathExpr, bprogram::BProgram, bvariable_statement::BAssignment,
     },
     nodes::{bin_op::BinOp, identifier::Iden, number::Number, program::Expr, string::NString},
 };
