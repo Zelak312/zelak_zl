@@ -1,8 +1,11 @@
 use std::any::{Any, TypeId};
 
-use crate::nodes::{
-    identifier::NIdentifier, number::NNumber, program::NProgram,
-    variable_statement::NVariableStatement,
+use crate::{
+    bash_nodes::bvariable_statement::BVariableStatement,
+    nodes::{
+        expression_statement::NExpressionStatement, identifier::NIdentifier, number::NNumber,
+        program::NProgram,
+    },
 };
 
 pub fn generate_code(root: Box<dyn Any>) -> Box<String> {
@@ -14,11 +17,14 @@ pub fn generate_code(root: Box<dyn Any>) -> Box<String> {
         for child in bash_program.childs {
             str += &(generate_code(child).to_string() + "\n")
         }
-    } else if actual_id == TypeId::of::<NVariableStatement>() {
-        let variable_statement = root.downcast::<NVariableStatement>().unwrap();
+    } else if actual_id == TypeId::of::<BVariableStatement>() {
+        let variable_statement = root.downcast::<BVariableStatement>().unwrap();
         str += &(generate_code(variable_statement.identifier).to_string()
             + "="
             + &generate_code(variable_statement.expression));
+    } else if actual_id == TypeId::of::<NExpressionStatement>() {
+        let expression_statement = root.downcast::<NExpressionStatement>().unwrap();
+        str += generate_code(expression_statement.content).as_str();
     } else if actual_id == TypeId::of::<NIdentifier>() {
         let identifier = root.downcast::<NIdentifier>().unwrap();
         str += &("$".to_string() + &identifier.name);

@@ -18,11 +18,13 @@ fn tr_r(root: Box<dyn Any>) -> Box<dyn Any> {
     if actual_id == TypeId::of::<NVariableStatement>() {
         let variable_statement = root.downcast::<NVariableStatement>().unwrap();
         return Box::new(BVariableStatement {
-            iden: tr_r(variable_statement.identifier),
+            identifier: tr_r(variable_statement.identifier),
             expression: tr_r(variable_statement.expression),
         });
     } else if actual_id == TypeId::of::<NExpressionStatement>() {
-        return root;
+        let mut expression_statement = root.downcast::<NExpressionStatement>().unwrap();
+        expression_statement.content = tr_r(expression_statement.content);
+        return expression_statement;
     } else if actual_id == TypeId::of::<NIdentifier>() {
         return root;
     } else if actual_id == TypeId::of::<NNumber>() {
