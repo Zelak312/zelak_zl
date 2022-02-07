@@ -25,9 +25,10 @@ impl Parser {
     }
 
     fn program(&mut self) -> Result<Box<NProgram>, String> {
-        let mut current = self.base.get_current();
         let mut program = NProgram { childs: vec![] };
-        while current._type != Type::EOL {}
+        while self.base.get_current()._type != Type::EOL {
+            program.childs.push(self.variable_statement()?);
+        }
 
         return Ok(Box::new(program));
     }
