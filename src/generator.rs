@@ -4,7 +4,7 @@ use crate::{
     bash_nodes::{
         bassignment::BAssignment, becho::BEcho, bmath_expr::BMathExpr, bprogram::BProgram,
     },
-    nodes::{bin_op::BinOp, expr::Expr, iden::Iden, number::Number, string::NString},
+    nodes::{bin_op::BinOp, identifier::Iden, number::Number, program::Expr, string::NString},
 };
 
 pub fn generate_code(root: Box<dyn Any>) -> Box<String> {

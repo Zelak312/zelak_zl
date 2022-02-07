@@ -8,8 +8,8 @@ use crate::{
         bassignment::BAssignment, becho::BEcho, bmath_expr::BMathExpr, bprogram::BProgram,
     },
     nodes::{
-        assignment::Assignment, bin_op::BinOp, expr::Expr, function_call::FunctionCall, iden::Iden,
-        number::Number,
+        bin_op::BinOp, function_call::FunctionCall, identifier::Iden, number::Number,
+        program::Expr, variable_statement::Assignment,
     },
 };
 
