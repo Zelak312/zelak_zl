@@ -1,4 +1,5 @@
-use super::node_kind::NodeBox;
+use crate::ast::node_box::NodeBox;
+
 pub struct NProgram {
     pub childs: Vec<Box<NodeBox>>,
 }

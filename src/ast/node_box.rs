@@ -1,17 +1,11 @@
-use std::any::Any;
-
 use super::{
-    expression_statement::NExpressionStatement, identifier::NIdentifier, number::NNumber,
-    program::NProgram, variable_statement::NVariableStatement,
+    node_kind::NodeKind,
+    nodes::{
+        expression_statement::NExpressionStatement, identifier::NIdentifier, number::NNumber,
+        program::NProgram, variable_statement::NVariableStatement,
+    },
 };
-
-pub enum NodeKind {
-    Program,
-    VariableStatement,
-    ExpressionStatement,
-    Identifier,
-    Number,
-}
+use std::any::Any;
 
 pub struct NodeBox {
     pub content: Box<dyn Any>,

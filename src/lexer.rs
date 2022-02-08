@@ -27,6 +27,14 @@ impl Lexer {
         };
     }
 
+    pub fn debug(mut self) {
+        let mut current = self.get_next();
+        while current._type != Type::EOL {
+            println!("{:?}", current);
+            current = self.get_next();
+        }
+    }
+
     fn advance(&mut self) {
         self.pos += 1;
         if self.pos < self.chars.len() {

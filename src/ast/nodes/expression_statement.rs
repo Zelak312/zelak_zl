@@ -1,4 +1,4 @@
-use super::node_kind::NodeBox;
+use crate::ast::node_box::NodeBox;
 
 pub struct NExpressionStatement {
     pub content: Box<NodeBox>,

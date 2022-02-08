@@ -1,13 +1,14 @@
+use crate::ast::node_box::NodeBox;
+use crate::ast::node_kind::NodeKind;
+use crate::ast::nodes::expression_statement::NExpressionStatement;
+use crate::ast::nodes::identifier::NIdentifier;
+use crate::ast::nodes::number::NNumber;
+use crate::ast::nodes::program::NProgram;
+use crate::ast::nodes::variable_statement::NVariableStatement;
+
 use super::baseParser::BaseParser;
 use super::lexer::Lexer;
 use super::token::Type;
-
-use crate::nodes::expression_statement::NExpressionStatement;
-use crate::nodes::identifier::NIdentifier;
-use crate::nodes::node_kind::{NodeBox, NodeKind};
-use crate::nodes::number::NNumber;
-use crate::nodes::program::NProgram;
-use crate::nodes::variable_statement::NVariableStatement;
 
 pub struct Parser {
     base: BaseParser,

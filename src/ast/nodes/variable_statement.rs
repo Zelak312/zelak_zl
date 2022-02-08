@@ -1,6 +1,4 @@
-use crate::token::Type;
-
-use super::node_kind::NodeBox;
+use crate::{ast::node_box::NodeBox, token::Type};
 
 pub struct NVariableStatement {
     pub declare_type: Option<Type>,
