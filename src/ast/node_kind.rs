@@ -4,5 +4,6 @@ pub enum NodeKind {
     ExpressionStatement,
     MathStatement,
     Identifier,
+    String,
     Number,
 }

@@ -1,1 +1,4 @@
 const nice = 10 + (5 * 2)
+let neat = nice + 6 + "oof"
+yeet = "ya ouf"
+n = "ne"

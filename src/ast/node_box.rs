@@ -2,7 +2,7 @@ use super::{
     node_kind::NodeKind,
     nodes::{
         expression_statement::NExpressionStatement, identifier::NIdentifier,
-        math_statement::NMathStatement, number::NNumber, program::NProgram,
+        math_statement::NMathStatement, number::NNumber, program::NProgram, string::NString,
         variable_statement::NVariableStatement,
     },
 };
@@ -43,6 +43,10 @@ impl NodeBox {
             }
             NodeKind::Identifier => {
                 let d = self.content.downcast_ref::<NIdentifier>().unwrap();
+                d.debug(tab_r)
+            }
+            NodeKind::String => {
+                let d = self.content.downcast_ref::<NString>().unwrap();
                 d.debug(tab_r)
             }
             NodeKind::Number => {

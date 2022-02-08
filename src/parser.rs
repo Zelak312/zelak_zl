@@ -5,6 +5,7 @@ use crate::ast::nodes::identifier::NIdentifier;
 use crate::ast::nodes::math_statement::NMathStatement;
 use crate::ast::nodes::number::NNumber;
 use crate::ast::nodes::program::NProgram;
+use crate::ast::nodes::string::NString;
 use crate::ast::nodes::variable_statement::NVariableStatement;
 
 use super::base_parser::BaseParser;
@@ -67,7 +68,7 @@ impl Parser {
             return math;
         }
 
-        let left = self.number()?;
+        let left = self.basic_type()?;
         if let Ok(operator) = self
             .base
             .eat_mult(&[Type::Add, Type::Min, Type::Mul, Type::Div])
@@ -86,12 +87,31 @@ impl Parser {
         return Ok(left);
     }
 
+    fn basic_type(&mut self) -> Result<Box<NodeBox>, String> {
+        if let Ok(identifer) = self.identifer() {
+            return Ok(identifer);
+        }
+        if let Ok(string) = self.string() {
+            return Ok(string);
+        }
+        return self.number();
+    }
+
     fn identifer(&mut self) -> Result<Box<NodeBox>, String> {
         return Ok(NodeBox::new_box(
             Box::new(NIdentifier {
                 name: self.base.eat(Type::Iden)?.val,
             }),
             NodeKind::Identifier,
+        ));
+    }
+
+    fn string(&mut self) -> Result<Box<NodeBox>, String> {
+        return Ok(NodeBox::new_box(
+            Box::new(NString {
+                val: self.base.eat(Type::String)?.val,
+            }),
+            NodeKind::String,
         ));
     }
 
