@@ -2,9 +2,10 @@ use super::{
     node_kind::NodeKind,
     nodes::{
         call_statement::NCallStatement, condition::NCondition,
-        expression_statement::NExpressionStatement, identifier::NIdentifier,
-        if_statement::NIfStatement, math_statement::NMathStatement, number::NNumber,
-        program::NProgram, string::NString, variable_statement::NVariableStatement,
+        condition_statement::NConditionStatement, expression_statement::NExpressionStatement,
+        identifier::NIdentifier, if_statement::NIfStatement, math_statement::NMathStatement,
+        number::NNumber, program::NProgram, string::NString,
+        variable_statement::NVariableStatement,
     },
 };
 use std::any::Any;
@@ -31,6 +32,10 @@ impl NodeBox {
             }
             NodeKind::IfStatement => {
                 let d = self.content.downcast_ref::<NIfStatement>().unwrap();
+                d.debug(tab_r);
+            }
+            NodeKind::ConditionStatement => {
+                let d = self.content.downcast_ref::<NConditionStatement>().unwrap();
                 d.debug(tab_r);
             }
             NodeKind::Condition => {

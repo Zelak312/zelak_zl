@@ -2,6 +2,7 @@ use crate::ast::node_box::NodeBox;
 use crate::ast::node_kind::NodeKind;
 use crate::ast::nodes::call_statement::NCallStatement;
 use crate::ast::nodes::condition::NCondition;
+use crate::ast::nodes::condition_statement::NConditionStatement;
 use crate::ast::nodes::expression_statement::NExpressionStatement;
 use crate::ast::nodes::identifier::NIdentifier;
 use crate::ast::nodes::if_statement::NIfStatement;
@@ -61,12 +62,7 @@ impl Parser {
     fn if_statement(&mut self) -> Result<Box<NodeBox>, String> {
         self.base.eat(Type::IfK)?;
         self.base.eat(Type::LParen)?;
-
-        let mut conditions = vec![];
-        while let Ok(condition) = self.condition() {
-            conditions.push(condition);
-        }
-
+        let condition = self.condition_statement()?;
         self.base.eat(Type::RParen)?;
         self.base.eat(Type::LBracket)?;
         let mut expressions = vec![];
@@ -77,11 +73,27 @@ impl Parser {
         self.base.eat(Type::RBracket)?;
         return Ok(NodeBox::new_box(
             Box::new(NIfStatement {
-                conditions,
+                condition,
                 expressions,
             }),
             NodeKind::IfStatement,
         ));
+    }
+
+    fn condition_statement(&mut self) -> Result<Box<NodeBox>, String> {
+        let left = self.condition()?;
+        if let Ok(operator) = self.base.eat_mult(&[Type::And, Type::Or]) {
+            return Ok(NodeBox::new_box(
+                Box::new(NConditionStatement {
+                    operator: operator.val,
+                    left,
+                    right: self.condition_statement()?,
+                }),
+                NodeKind::ConditionStatement,
+            ));
+        }
+
+        return Ok(left);
     }
 
     fn condition(&mut self) -> Result<Box<NodeBox>, String> {

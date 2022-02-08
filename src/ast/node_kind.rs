@@ -2,6 +2,7 @@
 pub enum NodeKind {
     Program,
     IfStatement,
+    ConditionStatement,
     Condition,
     VariableStatement,
     ExpressionStatement,
