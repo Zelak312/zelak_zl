@@ -68,7 +68,7 @@ impl Lexer {
         let mut num: String = c.to_string();
         self.advance();
         while let Some(current) = self.current {
-            if !current.is_numeric() {
+            if !current.is_numeric() && current != '.' {
                 break;
             }
 
