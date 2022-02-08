@@ -6,7 +6,7 @@ use crate::ast::nodes::number::NNumber;
 use crate::ast::nodes::program::NProgram;
 use crate::ast::nodes::variable_statement::NVariableStatement;
 
-use super::baseParser::BaseParser;
+use super::base_parser::BaseParser;
 use super::lexer::Lexer;
 use super::token::Type;
 

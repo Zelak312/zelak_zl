@@ -1,5 +1,5 @@
 mod ast;
-mod baseParser;
+mod base_parser;
 mod bash_nodes;
 mod lexer;
 mod parser;
