@@ -1,5 +1,6 @@
 use crate::ast::node_box::NodeBox;
 use crate::ast::node_kind::NodeKind;
+use crate::ast::nodes::call_statement::NCallStatement;
 use crate::ast::nodes::expression_statement::NExpressionStatement;
 use crate::ast::nodes::identifier::NIdentifier;
 use crate::ast::nodes::math_statement::NMathStatement;
@@ -31,33 +32,60 @@ impl Parser {
     fn program(&mut self) -> Result<Box<NodeBox>, String> {
         let mut program = NProgram { childs: vec![] };
         while self.base.get_current()._type != Type::EOL {
-            program.childs.push(self.variable_statement()?);
+            program.childs.push(self.expression_statement()?);
         }
 
         return Ok(NodeBox::new_box(Box::new(program), NodeKind::Program));
     }
 
+    fn expression_statement(&mut self) -> Result<Box<NodeBox>, String> {
+        let mut variable_statement = self.variable_statement()?;
+        if variable_statement._type == NodeKind::Identifier {
+            variable_statement = self.call_statement(variable_statement)?;
+        }
+
+        return Ok(NodeBox::new_box(
+            Box::new(NExpressionStatement {
+                content: variable_statement,
+            }),
+            NodeKind::ExpressionStatement,
+        ));
+    }
+
     fn variable_statement(&mut self) -> Result<Box<NodeBox>, String> {
         let delcare_token = self.base.eat_mult(&[Type::ConstK, Type::LetK]);
         let identifier = self.identifer()?;
-        self.base.eat(Type::Equal)?;
-        let expression_statement = self.expression_statement()?;
+        if self.base.eat(Type::Equal).is_err() {
+            return Ok(identifier);
+        }
+        let math_statement = self.math_statement(false)?;
 
         return Ok(NodeBox::new_box(
             Box::new(NVariableStatement {
                 declare_type: delcare_token.ok().and_then(|t| Some(t._type)),
                 identifier,
-                expression: expression_statement,
+                expression: math_statement,
             }),
             NodeKind::VariableStatement,
         ));
     }
 
-    fn expression_statement(&mut self) -> Result<Box<NodeBox>, String> {
-        let math = self.math_statement(false)?;
+    fn call_statement(&mut self, identifier: Box<NodeBox>) -> Result<Box<NodeBox>, String> {
+        if self.base.eat(Type::LParen).is_err() {
+            return Ok(identifier);
+        }
+        let mut params = vec![];
+        while let Ok(basic_type) = self.basic_type() {
+            params.push(basic_type);
+            let _ = self.base.eat(Type::Comma);
+        }
+        self.base.eat(Type::RParen)?;
         return Ok(NodeBox::new_box(
-            Box::new(NExpressionStatement { content: math }),
-            NodeKind::ExpressionStatement,
+            Box::new(NCallStatement {
+                identifier,
+                parameters: params,
+            }),
+            NodeKind::CallStatement,
         ));
     }
 
@@ -88,8 +116,9 @@ impl Parser {
     }
 
     fn basic_type(&mut self) -> Result<Box<NodeBox>, String> {
-        if let Ok(identifer) = self.identifer() {
-            return Ok(identifer);
+        if let Ok(identifier) = self.identifer() {
+            let call_statement = self.call_statement(identifier)?;
+            return Ok(call_statement);
         }
         if let Ok(string) = self.string() {
             return Ok(string);

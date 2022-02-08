@@ -1,13 +1,12 @@
 use super::{
     node_kind::NodeKind,
     nodes::{
-        expression_statement::NExpressionStatement, identifier::NIdentifier,
-        math_statement::NMathStatement, number::NNumber, program::NProgram, string::NString,
-        variable_statement::NVariableStatement,
+        call_statement::NCallStatement, expression_statement::NExpressionStatement,
+        identifier::NIdentifier, math_statement::NMathStatement, number::NNumber,
+        program::NProgram, string::NString, variable_statement::NVariableStatement,
     },
 };
 use std::any::Any;
-
 pub struct NodeBox {
     pub content: Box<dyn Any>,
     pub _type: NodeKind,
@@ -35,6 +34,10 @@ impl NodeBox {
             }
             NodeKind::ExpressionStatement => {
                 let d = self.content.downcast_ref::<NExpressionStatement>().unwrap();
+                d.debug(tab_r)
+            }
+            NodeKind::CallStatement => {
+                let d = self.content.downcast_ref::<NCallStatement>().unwrap();
                 d.debug(tab_r)
             }
             NodeKind::MathStatement => {
