@@ -1,2 +1,1 @@
-const nice = 10
-let neat = 20
+const nice = 10 + (5 * 2)

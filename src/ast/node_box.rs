@@ -1,8 +1,9 @@
 use super::{
     node_kind::NodeKind,
     nodes::{
-        expression_statement::NExpressionStatement, identifier::NIdentifier, number::NNumber,
-        program::NProgram, variable_statement::NVariableStatement,
+        expression_statement::NExpressionStatement, identifier::NIdentifier,
+        math_statement::NMathStatement, number::NNumber, program::NProgram,
+        variable_statement::NVariableStatement,
     },
 };
 use std::any::Any;
@@ -34,6 +35,10 @@ impl NodeBox {
             }
             NodeKind::ExpressionStatement => {
                 let d = self.content.downcast_ref::<NExpressionStatement>().unwrap();
+                d.debug(tab_r)
+            }
+            NodeKind::MathStatement => {
+                let d = self.content.downcast_ref::<NMathStatement>().unwrap();
                 d.debug(tab_r)
             }
             NodeKind::Identifier => {

@@ -2,6 +2,7 @@ use crate::ast::node_box::NodeBox;
 use crate::ast::node_kind::NodeKind;
 use crate::ast::nodes::expression_statement::NExpressionStatement;
 use crate::ast::nodes::identifier::NIdentifier;
+use crate::ast::nodes::math_statement::NMathStatement;
 use crate::ast::nodes::number::NNumber;
 use crate::ast::nodes::program::NProgram;
 use crate::ast::nodes::variable_statement::NVariableStatement;
@@ -52,11 +53,37 @@ impl Parser {
     }
 
     fn expression_statement(&mut self) -> Result<Box<NodeBox>, String> {
-        let number = self.number()?;
+        let math = self.math_statement(false)?;
         return Ok(NodeBox::new_box(
-            Box::new(NExpressionStatement { content: number }),
+            Box::new(NExpressionStatement { content: math }),
             NodeKind::ExpressionStatement,
         ));
+    }
+
+    fn math_statement(&mut self, as_paren: bool) -> Result<Box<NodeBox>, String> {
+        if self.base.eat(Type::LParen).is_ok() {
+            let math = self.math_statement(true);
+            self.base.eat(Type::RParen)?;
+            return math;
+        }
+
+        let left = self.number()?;
+        if let Ok(operator) = self
+            .base
+            .eat_mult(&[Type::Add, Type::Min, Type::Mul, Type::Div])
+        {
+            return Ok(NodeBox::new_box(
+                Box::new(NMathStatement {
+                    parenthese: as_paren,
+                    left,
+                    operator: operator.val,
+                    right: self.math_statement(false)?,
+                }),
+                NodeKind::MathStatement,
+            ));
+        }
+
+        return Ok(left);
     }
 
     fn identifer(&mut self) -> Result<Box<NodeBox>, String> {
