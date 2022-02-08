@@ -1,8 +1,10 @@
 use crate::ast::node_box::NodeBox;
 use crate::ast::node_kind::NodeKind;
 use crate::ast::nodes::call_statement::NCallStatement;
+use crate::ast::nodes::condition::NCondition;
 use crate::ast::nodes::expression_statement::NExpressionStatement;
 use crate::ast::nodes::identifier::NIdentifier;
+use crate::ast::nodes::if_statement::NIfStatement;
 use crate::ast::nodes::math_statement::NMathStatement;
 use crate::ast::nodes::number::NNumber;
 use crate::ast::nodes::program::NProgram;
@@ -39,12 +41,68 @@ impl Parser {
     }
 
     fn expression_statement(&mut self) -> Result<Box<NodeBox>, String> {
+        if let Ok(if_statement) = self.if_statement() {
+            return Ok(NodeBox::new_box(
+                Box::new(NExpressionStatement {
+                    content: if_statement,
+                }),
+                NodeKind::ExpressionStatement,
+            ));
+        }
         let variable_statement = self.variable_statement();
         let content = self.call_statement(variable_statement)?;
 
         return Ok(NodeBox::new_box(
             Box::new(NExpressionStatement { content }),
             NodeKind::ExpressionStatement,
+        ));
+    }
+
+    fn if_statement(&mut self) -> Result<Box<NodeBox>, String> {
+        self.base.eat(Type::IfK)?;
+        self.base.eat(Type::LParen)?;
+
+        let mut conditions = vec![];
+        while let Ok(condition) = self.condition() {
+            conditions.push(condition);
+        }
+
+        self.base.eat(Type::RParen)?;
+        self.base.eat(Type::LBracket)?;
+        let mut expressions = vec![];
+        while let Ok(expression) = self.expression_statement() {
+            expressions.push(expression);
+        }
+
+        self.base.eat(Type::RBracket)?;
+        return Ok(NodeBox::new_box(
+            Box::new(NIfStatement {
+                conditions,
+                expressions,
+            }),
+            NodeKind::IfStatement,
+        ));
+    }
+
+    fn condition(&mut self) -> Result<Box<NodeBox>, String> {
+        let left = self.basic_type()?;
+        let operator = self.base.eat_mult(&[
+            Type::Gt,
+            Type::Lt,
+            Type::NotEqual,
+            Type::GtEqual,
+            Type::LtEqual,
+            Type::DEqual,
+        ])?;
+        let right = self.basic_type()?;
+
+        return Ok(NodeBox::new_box(
+            Box::new(NCondition {
+                operator: operator.val,
+                left,
+                right,
+            }),
+            NodeKind::Condition,
         ));
     }
 

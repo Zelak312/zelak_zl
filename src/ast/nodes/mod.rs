@@ -1,6 +1,8 @@
 pub mod call_statement;
+pub mod condition;
 pub mod expression_statement;
 pub mod identifier;
+pub mod if_statement;
 pub mod math_statement;
 pub mod number;
 pub mod program;

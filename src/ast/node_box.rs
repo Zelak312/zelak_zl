@@ -1,8 +1,9 @@
 use super::{
     node_kind::NodeKind,
     nodes::{
-        call_statement::NCallStatement, expression_statement::NExpressionStatement,
-        identifier::NIdentifier, math_statement::NMathStatement, number::NNumber,
+        call_statement::NCallStatement, condition::NCondition,
+        expression_statement::NExpressionStatement, identifier::NIdentifier,
+        if_statement::NIfStatement, math_statement::NMathStatement, number::NNumber,
         program::NProgram, string::NString, variable_statement::NVariableStatement,
     },
 };
@@ -26,6 +27,14 @@ impl NodeBox {
         match self._type {
             NodeKind::Program => {
                 let d = self.content.downcast_ref::<NProgram>().unwrap();
+                d.debug(tab_r);
+            }
+            NodeKind::IfStatement => {
+                let d = self.content.downcast_ref::<NIfStatement>().unwrap();
+                d.debug(tab_r);
+            }
+            NodeKind::Condition => {
+                let d = self.content.downcast_ref::<NCondition>().unwrap();
                 d.debug(tab_r);
             }
             NodeKind::VariableStatement => {
