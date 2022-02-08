@@ -1,3 +1,5 @@
 nice()
 const nice = yeet("neat", foo, bar)
-let baz = floor(10.5) + 3
+let baz = floor(10.5, oof("ahah")) + 3
+print("10")
+let prints = "oof"

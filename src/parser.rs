@@ -39,15 +39,11 @@ impl Parser {
     }
 
     fn expression_statement(&mut self) -> Result<Box<NodeBox>, String> {
-        let mut variable_statement = self.variable_statement()?;
-        if variable_statement._type == NodeKind::Identifier {
-            variable_statement = self.call_statement(variable_statement)?;
-        }
+        let variable_statement = self.variable_statement();
+        let content = self.call_statement(variable_statement)?;
 
         return Ok(NodeBox::new_box(
-            Box::new(NExpressionStatement {
-                content: variable_statement,
-            }),
+            Box::new(NExpressionStatement { content }),
             NodeKind::ExpressionStatement,
         ));
     }
@@ -70,9 +66,21 @@ impl Parser {
         ));
     }
 
-    fn call_statement(&mut self, identifier: Box<NodeBox>) -> Result<Box<NodeBox>, String> {
+    fn call_statement(
+        &mut self,
+        identifier: Result<Box<NodeBox>, String>,
+    ) -> Result<Box<NodeBox>, String> {
+        let function_name;
+        if identifier.is_err() {
+            function_name = self.function_reserved_identifier()?;
+        } else if identifier.as_ref().unwrap()._type == NodeKind::Identifier {
+            function_name = identifier.unwrap();
+        } else {
+            return identifier;
+        }
+
         if self.base.eat(Type::LParen).is_err() {
-            return Ok(identifier);
+            return Ok(function_name);
         }
         let mut params = vec![];
         while let Ok(basic_type) = self.basic_type() {
@@ -82,7 +90,7 @@ impl Parser {
         self.base.eat(Type::RParen)?;
         return Ok(NodeBox::new_box(
             Box::new(NCallStatement {
-                identifier,
+                identifier: function_name,
                 parameters: params,
             }),
             NodeKind::CallStatement,
@@ -115,9 +123,18 @@ impl Parser {
         return Ok(left);
     }
 
+    fn function_reserved_identifier(&mut self) -> Result<Box<NodeBox>, String> {
+        return Ok(NodeBox::new_box(
+            Box::new(NIdentifier {
+                name: self.base.eat_mult(&[Type::PrintK])?.val,
+            }),
+            NodeKind::Identifier,
+        ));
+    }
+
     fn basic_type(&mut self) -> Result<Box<NodeBox>, String> {
         if let Ok(identifier) = self.identifer() {
-            let call_statement = self.call_statement(identifier)?;
+            let call_statement = self.call_statement(Ok(identifier))?;
             return Ok(call_statement);
         }
         if let Ok(string) = self.string() {
