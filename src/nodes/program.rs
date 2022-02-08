@@ -1,4 +1,13 @@
-use std::any::Any;
+use super::node_kind::NodeBox;
 pub struct NProgram {
-    pub childs: Vec<Box<dyn Any>>,
+    pub childs: Vec<Box<NodeBox>>,
+}
+
+impl NProgram {
+    pub fn debug(self, tab: usize) {
+        println!("{}{}", "\t".repeat(tab), "Program");
+        for child in self.childs {
+            child.debug(Some(tab + 1));
+        }
+    }
 }
