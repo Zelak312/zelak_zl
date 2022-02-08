@@ -3,7 +3,7 @@ pub struct NNumber {
 }
 
 impl NNumber {
-    pub fn debug(self, tab: usize) {
+    pub fn debug(&self, tab: usize) {
         println!("{}{}", "\t".repeat(tab), "Number");
         println!("{}val: {}", "\t".repeat(tab + 1), self.val);
     }

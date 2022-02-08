@@ -13,16 +13,16 @@ use std::{
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    let debug = args.contains(&"debug".to_string());
     let contents = fs::read_to_string("test.zl").expect("Something went wrong reading the file");
+    let mut lexer = Lexer::new(&contents);
 
-    if args.contains(&"debug".to_string()) {
-        let lexer = Lexer::new(&contents);
+    if debug {
         lexer.debug();
     }
 
-    let lexer = Lexer::new(&contents);
     let ast = Parser::gen_ast(lexer);
-    if args.contains(&"debug".to_string()) {
+    if debug {
         ast.debug(None);
     }
     // let bash_ast = transpile(ast);

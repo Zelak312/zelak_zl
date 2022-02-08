@@ -27,12 +27,15 @@ impl Lexer {
         };
     }
 
-    pub fn debug(mut self) {
+    pub fn debug(&mut self) {
         let mut current = self.get_next();
         while current._type != Type::EOL {
             println!("{:?}", current);
             current = self.get_next();
         }
+
+        self.pos = 0;
+        self.current = Some(self.chars[0]);
     }
 
     fn advance(&mut self) {

@@ -5,9 +5,9 @@ pub struct NProgram {
 }
 
 impl NProgram {
-    pub fn debug(self, tab: usize) {
+    pub fn debug(&self, tab: usize) {
         println!("{}{}", "\t".repeat(tab), "Program");
-        for child in self.childs {
+        for child in &self.childs {
             child.debug(Some(tab + 1));
         }
     }

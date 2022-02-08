@@ -21,27 +21,27 @@ impl NodeBox {
         Box::new(NodeBox::new(content, _type))
     }
 
-    pub fn debug(self, tab: Option<usize>) {
+    pub fn debug(&self, tab: Option<usize>) {
         let tab_r = tab.unwrap_or(0);
         match self._type {
             NodeKind::Program => {
-                let d = self.content.downcast::<NProgram>().unwrap();
-                d.debug(tab_r)
+                let d = self.content.downcast_ref::<NProgram>().unwrap();
+                d.debug(tab_r);
             }
             NodeKind::VariableStatement => {
-                let d = self.content.downcast::<NVariableStatement>().unwrap();
+                let d = self.content.downcast_ref::<NVariableStatement>().unwrap();
                 d.debug(tab_r)
             }
             NodeKind::ExpressionStatement => {
-                let d = self.content.downcast::<NExpressionStatement>().unwrap();
+                let d = self.content.downcast_ref::<NExpressionStatement>().unwrap();
                 d.debug(tab_r)
             }
             NodeKind::Identifier => {
-                let d = self.content.downcast::<NIdentifier>().unwrap();
+                let d = self.content.downcast_ref::<NIdentifier>().unwrap();
                 d.debug(tab_r)
             }
             NodeKind::Number => {
-                let d = self.content.downcast::<NNumber>().unwrap();
+                let d = self.content.downcast_ref::<NNumber>().unwrap();
                 d.debug(tab_r)
             }
         }

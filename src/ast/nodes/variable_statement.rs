@@ -7,7 +7,7 @@ pub struct NVariableStatement {
 }
 
 impl NVariableStatement {
-    pub fn debug(self, tab: usize) {
+    pub fn debug(&self, tab: usize) {
         println!("{}{}", "\t".repeat(tab), "VariableStatement");
         println!("{}declare: {:?}", "\t".repeat(tab + 1), self.declare_type);
         self.identifier.debug(Some(tab + 1));
