@@ -7,6 +7,7 @@ pub enum NodeKind {
     VariableStatement,
     ExpressionStatement,
     CallStatement,
+    ParentheseStatement,
     MathStatement,
     Identifier,
     String,

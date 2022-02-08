@@ -4,8 +4,8 @@ use super::{
         call_statement::NCallStatement, condition::NCondition,
         condition_statement::NConditionStatement, expression_statement::NExpressionStatement,
         identifier::NIdentifier, if_statement::NIfStatement, math_statement::NMathStatement,
-        number::NNumber, program::NProgram, string::NString,
-        variable_statement::NVariableStatement,
+        number::NNumber, parenthese_statement::NParentheseStatement, program::NProgram,
+        string::NString, variable_statement::NVariableStatement,
     },
 };
 use std::any::Any;
@@ -52,6 +52,10 @@ impl NodeBox {
             }
             NodeKind::CallStatement => {
                 let d = self.content.downcast_ref::<NCallStatement>().unwrap();
+                d.debug(tab_r)
+            }
+            NodeKind::ParentheseStatement => {
+                let d = self.content.downcast_ref::<NParentheseStatement>().unwrap();
                 d.debug(tab_r)
             }
             NodeKind::MathStatement => {

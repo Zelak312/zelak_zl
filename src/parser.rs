@@ -8,6 +8,7 @@ use crate::ast::nodes::identifier::NIdentifier;
 use crate::ast::nodes::if_statement::NIfStatement;
 use crate::ast::nodes::math_statement::NMathStatement;
 use crate::ast::nodes::number::NNumber;
+use crate::ast::nodes::parenthese_statement::NParentheseStatement;
 use crate::ast::nodes::program::NProgram;
 use crate::ast::nodes::string::NString;
 use crate::ast::nodes::variable_statement::NVariableStatement;
@@ -81,7 +82,7 @@ impl Parser {
     }
 
     fn condition_statement(&mut self) -> Result<Box<NodeBox>, String> {
-        let left = self.condition()?;
+        let left = self.parenthese_statement(NodeKind::ConditionStatement)?;
         if let Ok(operator) = self.base.eat_mult(&[Type::And, Type::Or]) {
             return Ok(NodeBox::new_box(
                 Box::new(NConditionStatement {
@@ -97,7 +98,7 @@ impl Parser {
     }
 
     fn condition(&mut self) -> Result<Box<NodeBox>, String> {
-        let left = self.basic_type()?;
+        let left = self.parenthese_statement(NodeKind::Condition)?;
         let operator = self.base.eat_mult(&[
             Type::Gt,
             Type::Lt,
@@ -106,7 +107,7 @@ impl Parser {
             Type::LtEqual,
             Type::DEqual,
         ])?;
-        let right = self.basic_type()?;
+        let right = self.parenthese_statement(NodeKind::Condition)?;
 
         return Ok(NodeBox::new_box(
             Box::new(NCondition {
@@ -124,7 +125,7 @@ impl Parser {
         if self.base.eat(Type::Equal).is_err() {
             return Ok(identifier);
         }
-        let math_statement = self.math_statement(false)?;
+        let math_statement = self.math_statement()?;
 
         return Ok(NodeBox::new_box(
             Box::new(NVariableStatement {
@@ -167,24 +168,40 @@ impl Parser {
         ));
     }
 
-    fn math_statement(&mut self, as_paren: bool) -> Result<Box<NodeBox>, String> {
+    fn parenthese_statement(&mut self, kind: NodeKind) -> Result<Box<NodeBox>, String> {
         if self.base.eat(Type::LParen).is_ok() {
-            let math = self.math_statement(true);
+            let content = match kind {
+                NodeKind::MathStatement => self.math_statement(),
+                NodeKind::ConditionStatement => self.condition_statement(),
+                NodeKind::Condition => self.condition(),
+                _ => panic!("Don't know this parentheses kind"),
+            }?;
             self.base.eat(Type::RParen)?;
-            return math;
+
+            return Ok(NodeBox::new_box(
+                Box::new(NParentheseStatement { content }),
+                NodeKind::ParentheseStatement,
+            ));
         }
 
-        let left = self.basic_type()?;
+        match kind {
+            NodeKind::MathStatement | NodeKind::Condition => self.basic_type(),
+            NodeKind::ConditionStatement => self.condition(),
+            _ => panic!("Don't know this parentheses kind"),
+        }
+    }
+
+    fn math_statement(&mut self) -> Result<Box<NodeBox>, String> {
+        let left = self.parenthese_statement(NodeKind::MathStatement)?;
         if let Ok(operator) = self
             .base
             .eat_mult(&[Type::Add, Type::Min, Type::Mul, Type::Div])
         {
             return Ok(NodeBox::new_box(
                 Box::new(NMathStatement {
-                    parenthese: as_paren,
                     left,
                     operator: operator.val,
-                    right: self.math_statement(false)?,
+                    right: self.math_statement()?,
                 }),
                 NodeKind::MathStatement,
             ));
