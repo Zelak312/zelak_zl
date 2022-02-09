@@ -1,11 +1,8 @@
-nice()
-const nice = yeet("neat", foo, bar)
-let baz = floor(10.5 > 5, oof("ahah" + "nii")) + -3
-print("10")
-let prints = "oof"
-if (10 == 3 && 3 + 5 - 2 > 5) {
-    print()
+funk nice(d, e) {
+    if (e > 3) {
+        return "nice"
+    }
+
+    return "yeet"
 }
-for (let i = 0; i < 5; i = i + 1) {}
-for (; true; ) {}
-let t = [1, "test", foo(), nice, 2 > 5, 2 + 2]
+nice()

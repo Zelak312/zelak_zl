@@ -7,6 +7,8 @@ use crate::ast::nodes::condition::NCondition;
 use crate::ast::nodes::condition_statement::NConditionStatement;
 use crate::ast::nodes::expression_statement::NExpressionStatement;
 use crate::ast::nodes::for_statement::NForStatement;
+use crate::ast::nodes::function_definition::NFunctionDefinition;
+use crate::ast::nodes::function_return::NFunctionReturn;
 use crate::ast::nodes::identifier::NIdentifier;
 use crate::ast::nodes::if_statement::NIfStatement;
 use crate::ast::nodes::math_statement::NMathStatement;
@@ -45,6 +47,29 @@ impl Parser {
         return Ok(NodeBox::new_box(Box::new(program), NodeKind::Program));
     }
 
+    fn function_definition(&mut self) -> Result<Box<NodeBox>, String> {
+        self.base.eat(Type::FunkK)?;
+        let identifier = self.identifer()?;
+        self.base.eat(Type::LParen)?;
+        let arguments = self.function_parameters(true)?;
+        self.base.eat(Type::RParen)?;
+        self.base.eat(Type::LBracket)?;
+        let mut expressions = vec![];
+        while let Ok(expression) = self.expression_statement() {
+            expressions.push(expression);
+        }
+        self.base.eat(Type::RBracket)?;
+
+        return Ok(NodeBox::new_box(
+            Box::new(NFunctionDefinition {
+                identifier,
+                arguments,
+                expressions,
+            }),
+            NodeKind::FunctionDefinition,
+        ));
+    }
+
     fn expression_statement(&mut self) -> Result<Box<NodeBox>, String> {
         if let Ok(if_statement) = self.if_statement() {
             return Ok(NodeBox::new_box(
@@ -62,12 +87,38 @@ impl Parser {
                 NodeKind::ExpressionStatement,
             ));
         }
+        if let Ok(function_definition) = self.function_definition() {
+            return Ok(NodeBox::new_box(
+                Box::new(NExpressionStatement {
+                    content: function_definition,
+                }),
+                NodeKind::ExpressionStatement,
+            ));
+        }
+        if let Ok(function_return) = self.function_return() {
+            return Ok(NodeBox::new_box(
+                Box::new(NExpressionStatement {
+                    content: function_return,
+                }),
+                NodeKind::ExpressionStatement,
+            ));
+        }
         let variable_statement = self.variable_statement();
         let content = self.call_statement(variable_statement)?;
 
         return Ok(NodeBox::new_box(
             Box::new(NExpressionStatement { content }),
             NodeKind::ExpressionStatement,
+        ));
+    }
+
+    fn function_return(&mut self) -> Result<Box<NodeBox>, String> {
+        self.base.eat(Type::ReturnK)?;
+        return Ok(NodeBox::new_box(
+            Box::new(NFunctionReturn {
+                content: self.condition_statement()?,
+            }),
+            NodeKind::FunctionReturn,
         ));
     }
 
@@ -153,11 +204,7 @@ impl Parser {
         if self.base.eat(Type::LParen).is_err() {
             return Ok(function_name);
         }
-        let mut params = vec![];
-        while let Ok(condition_statement) = self.condition_statement() {
-            params.push(condition_statement);
-            let _ = self.base.eat(Type::Comma);
-        }
+        let params = self.function_parameters(false)?;
         self.base.eat(Type::RParen)?;
         return Ok(NodeBox::new_box(
             Box::new(NCallStatement {
@@ -166,6 +213,27 @@ impl Parser {
             }),
             NodeKind::CallStatement,
         ));
+    }
+
+    fn function_parameters(&mut self, only_iden: bool) -> Result<Vec<Box<NodeBox>>, String> {
+        let mut params = vec![];
+        let current = match only_iden {
+            true => self.identifer(),
+            false => self.condition_statement(),
+        };
+
+        if current.is_ok() {
+            params.push(current.unwrap());
+            while let Ok(_) = self.base.eat(Type::Comma) {
+                let param = match only_iden {
+                    true => self.identifer(),
+                    false => self.condition_statement(),
+                }?;
+                params.push(param);
+            }
+        }
+
+        return Ok(params);
     }
 
     fn function_reserved_identifier(&mut self) -> Result<Box<NodeBox>, String> {

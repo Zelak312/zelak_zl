@@ -1,6 +1,8 @@
 #[derive(PartialEq, Clone)]
 pub enum NodeKind {
     Program,
+    FunctionDefinition,
+    FunctionReturn,
     IfStatement,
     ForStatement,
     VariableStatement,

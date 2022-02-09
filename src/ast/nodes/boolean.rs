@@ -1,5 +1,3 @@
-use crate::ast::node_box::NodeBox;
-
 pub struct NBoolean {
     pub val: bool,
 }

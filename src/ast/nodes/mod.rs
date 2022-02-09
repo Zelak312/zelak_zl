@@ -5,6 +5,8 @@ pub mod condition;
 pub mod condition_statement;
 pub mod expression_statement;
 pub mod for_statement;
+pub mod function_definition;
+pub mod function_return;
 pub mod identifier;
 pub mod if_statement;
 pub mod math_statement;

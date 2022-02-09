@@ -3,7 +3,8 @@ use super::{
     nodes::{
         array::NArray, boolean::NBoolean, call_statement::NCallStatement, condition::NCondition,
         condition_statement::NConditionStatement, expression_statement::NExpressionStatement,
-        for_statement::NForStatement, identifier::NIdentifier, if_statement::NIfStatement,
+        for_statement::NForStatement, function_definition::NFunctionDefinition,
+        function_return::NFunctionReturn, identifier::NIdentifier, if_statement::NIfStatement,
         math_statement::NMathStatement, number::NNumber,
         parenthese_statement::NParentheseStatement, program::NProgram, string::NString,
         variable_statement::NVariableStatement,
@@ -29,6 +30,14 @@ impl NodeBox {
         match self._type {
             NodeKind::Program => {
                 let d = self.content.downcast_ref::<NProgram>().unwrap();
+                d.debug(tab_r);
+            }
+            NodeKind::FunctionDefinition => {
+                let d = self.content.downcast_ref::<NFunctionDefinition>().unwrap();
+                d.debug(tab_r);
+            }
+            NodeKind::FunctionReturn => {
+                let d = self.content.downcast_ref::<NFunctionReturn>().unwrap();
                 d.debug(tab_r);
             }
             NodeKind::IfStatement => {
