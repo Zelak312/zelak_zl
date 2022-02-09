@@ -1,7 +1,7 @@
 use super::{
     node_kind::NodeKind,
     nodes::{
-        call_statement::NCallStatement, condition::NCondition,
+        array::NArray, call_statement::NCallStatement, condition::NCondition,
         condition_statement::NConditionStatement, expression_statement::NExpressionStatement,
         for_statement::NForStatement, identifier::NIdentifier, if_statement::NIfStatement,
         math_statement::NMathStatement, number::NNumber,
@@ -69,6 +69,10 @@ impl NodeBox {
             }
             NodeKind::Identifier => {
                 let d = self.content.downcast_ref::<NIdentifier>().unwrap();
+                d.debug(tab_r)
+            }
+            NodeKind::Array => {
+                let d = self.content.downcast_ref::<NArray>().unwrap();
                 d.debug(tab_r)
             }
             NodeKind::String => {

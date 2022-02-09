@@ -1,5 +1,6 @@
 use crate::ast::node_box::NodeBox;
 use crate::ast::node_kind::NodeKind;
+use crate::ast::nodes::array::NArray;
 use crate::ast::nodes::call_statement::NCallStatement;
 use crate::ast::nodes::condition::NCondition;
 use crate::ast::nodes::condition_statement::NConditionStatement;
@@ -252,6 +253,9 @@ impl Parser {
             let call_statement = self.call_statement(Ok(identifier))?;
             return Ok(call_statement);
         }
+        if let Ok(array) = self.array() {
+            return Ok(array);
+        }
         if let Ok(string) = self.string() {
             return Ok(string);
         }
@@ -264,6 +268,25 @@ impl Parser {
                 name: self.base.eat(Type::Iden)?.val,
             }),
             NodeKind::Identifier,
+        ));
+    }
+
+    fn array(&mut self) -> Result<Box<NodeBox>, String> {
+        self.base.eat(Type::LAngleBracket)?;
+        let mut items = vec![];
+        if let Ok(condition) = self.condition() {
+            items.push(condition);
+            while let Ok(_) = self.base.eat(Type::Comma) {
+                if let Ok(other_condition) = self.condition() {
+                    items.push(other_condition);
+                }
+            }
+        }
+
+        self.base.eat(Type::RAngleBracket)?;
+        return Ok(NodeBox::new_box(
+            Box::new(NArray { items }),
+            NodeKind::Array,
         ));
     }
 

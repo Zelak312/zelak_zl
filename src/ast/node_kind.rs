@@ -11,6 +11,7 @@ pub enum NodeKind {
     MathStatement,
     ParentheseStatement,
     Identifier,
+    Array,
     String,
     Number,
 }

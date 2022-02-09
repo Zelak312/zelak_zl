@@ -1,3 +1,4 @@
+pub mod array;
 pub mod call_statement;
 pub mod condition;
 pub mod condition_statement;
