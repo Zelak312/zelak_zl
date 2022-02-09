@@ -87,13 +87,13 @@ impl Parser {
         if self.base.eat(Type::Equal).is_err() {
             return Ok(identifier);
         }
-        let math_statement = self.math_statement()?;
+        let condition_statement = self.condition_statement()?;
 
         return Ok(NodeBox::new_box(
             Box::new(NVariableStatement {
                 declare_type: delcare_token.ok().and_then(|t| Some(t._type)),
                 identifier,
-                expression: math_statement,
+                expression: condition_statement,
             }),
             NodeKind::VariableStatement,
         ));
@@ -116,8 +116,8 @@ impl Parser {
             return Ok(function_name);
         }
         let mut params = vec![];
-        while let Ok(basic_type) = self.basic_type() {
-            params.push(basic_type);
+        while let Ok(condition_statement) = self.condition_statement() {
+            params.push(condition_statement);
             let _ = self.base.eat(Type::Comma);
         }
         self.base.eat(Type::RParen)?;
@@ -127,6 +127,15 @@ impl Parser {
                 parameters: params,
             }),
             NodeKind::CallStatement,
+        ));
+    }
+
+    fn function_reserved_identifier(&mut self) -> Result<Box<NodeBox>, String> {
+        return Ok(NodeBox::new_box(
+            Box::new(NIdentifier {
+                name: self.base.eat_mult(&[Type::PrintK])?.val,
+            }),
+            NodeKind::Identifier,
         ));
     }
 
@@ -200,15 +209,6 @@ impl Parser {
         }
 
         return self.basic_type();
-    }
-
-    fn function_reserved_identifier(&mut self) -> Result<Box<NodeBox>, String> {
-        return Ok(NodeBox::new_box(
-            Box::new(NIdentifier {
-                name: self.base.eat_mult(&[Type::PrintK])?.val,
-            }),
-            NodeKind::Identifier,
-        ));
     }
 
     fn basic_type(&mut self) -> Result<Box<NodeBox>, String> {
