@@ -155,6 +155,7 @@ impl Lexer {
             ']' => Some(Type::RAngleBracket),
             '.' => Some(Type::Dot),
             ',' => Some(Type::Comma),
+            ';' => Some(Type::SemiCol),
             '!' => Some(Type::ExclaMark),
             '=' => Some(Type::Equal),
             '>' => Some(Type::Gt),
@@ -203,8 +204,9 @@ impl Lexer {
             "else" => Some(Type::ElseK),
             "funk" => Some(Type::FunkK),
             "return" => Some(Type::ReturnK),
-            "in" => Some(Type::InK),
             "print" => Some(Type::PrintK),
+            "for" => Some(Type::ForK),
+            "in" => Some(Type::InK),
             _ => None,
         };
 

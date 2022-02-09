@@ -6,3 +6,6 @@ let prints = "oof"
 if (10 == 3 && 3 + 5 - 2 > 5) {
     print()
 }
+for (let i = 0; i < 5; i = i + 1) {
+    
+}

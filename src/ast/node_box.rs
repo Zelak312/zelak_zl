@@ -3,9 +3,10 @@ use super::{
     nodes::{
         call_statement::NCallStatement, condition::NCondition,
         condition_statement::NConditionStatement, expression_statement::NExpressionStatement,
-        identifier::NIdentifier, if_statement::NIfStatement, math_statement::NMathStatement,
-        number::NNumber, parenthese_statement::NParentheseStatement, program::NProgram,
-        string::NString, variable_statement::NVariableStatement,
+        for_statement::NForStatement, identifier::NIdentifier, if_statement::NIfStatement,
+        math_statement::NMathStatement, number::NNumber,
+        parenthese_statement::NParentheseStatement, program::NProgram, string::NString,
+        variable_statement::NVariableStatement,
     },
 };
 use std::any::Any;
@@ -32,6 +33,10 @@ impl NodeBox {
             }
             NodeKind::IfStatement => {
                 let d = self.content.downcast_ref::<NIfStatement>().unwrap();
+                d.debug(tab_r);
+            }
+            NodeKind::ForStatement => {
+                let d = self.content.downcast_ref::<NForStatement>().unwrap();
                 d.debug(tab_r);
             }
             NodeKind::ConditionStatement => {

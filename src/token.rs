@@ -16,6 +16,7 @@ pub enum Type {
 
     Dot,
     Comma,
+    SemiCol,
     ExclaMark,
     Equal,
     BinAnd,
@@ -34,15 +35,17 @@ pub enum Type {
     MulEqual,
     DivEqual,
 
-    Iden,
     ConstK,
     LetK,
     IfK,
     ElseK,
     FunkK,
     ReturnK,
-    InK,
     PrintK,
+    ForK,
+    InK,
+
+    Iden,
     String,
     Num,
 

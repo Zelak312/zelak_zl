@@ -4,6 +4,7 @@ use crate::ast::nodes::call_statement::NCallStatement;
 use crate::ast::nodes::condition::NCondition;
 use crate::ast::nodes::condition_statement::NConditionStatement;
 use crate::ast::nodes::expression_statement::NExpressionStatement;
+use crate::ast::nodes::for_statement::NForStatement;
 use crate::ast::nodes::identifier::NIdentifier;
 use crate::ast::nodes::if_statement::NIfStatement;
 use crate::ast::nodes::math_statement::NMathStatement;
@@ -51,6 +52,14 @@ impl Parser {
                 NodeKind::ExpressionStatement,
             ));
         }
+        if let Ok(for_statement) = self.for_statement() {
+            return Ok(NodeBox::new_box(
+                Box::new(NExpressionStatement {
+                    content: for_statement,
+                }),
+                NodeKind::ExpressionStatement,
+            ));
+        }
         let variable_statement = self.variable_statement();
         let content = self.call_statement(variable_statement)?;
 
@@ -78,6 +87,33 @@ impl Parser {
                 expressions,
             }),
             NodeKind::IfStatement,
+        ));
+    }
+
+    fn for_statement(&mut self) -> Result<Box<NodeBox>, String> {
+        self.base.eat(Type::ForK)?;
+        self.base.eat(Type::LParen)?;
+        let start = self.variable_statement();
+        self.base.eat(Type::SemiCol)?;
+        let condition = self.condition()?;
+        self.base.eat(Type::SemiCol)?;
+        let step = self.variable_statement();
+        self.base.eat(Type::RParen)?;
+        self.base.eat(Type::LBracket)?;
+
+        let mut expressions = vec![];
+        while let Ok(expression) = self.expression_statement() {
+            expressions.push(expression);
+        }
+        self.base.eat(Type::RBracket)?;
+        return Ok(NodeBox::new_box(
+            Box::new(NForStatement {
+                start: start.ok(),
+                condition,
+                step: step.ok(),
+                expressions,
+            }),
+            NodeKind::ForStatement,
         ));
     }
 
