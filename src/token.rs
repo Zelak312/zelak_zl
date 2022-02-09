@@ -44,6 +44,8 @@ pub enum Type {
     PrintK,
     ForK,
     InK,
+    TrueK,
+    FalseK,
 
     Iden,
     String,

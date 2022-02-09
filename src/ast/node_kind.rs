@@ -14,4 +14,5 @@ pub enum NodeKind {
     Array,
     String,
     Number,
+    Boolean,
 }

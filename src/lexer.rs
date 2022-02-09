@@ -207,6 +207,8 @@ impl Lexer {
             "print" => Some(Type::PrintK),
             "for" => Some(Type::ForK),
             "in" => Some(Type::InK),
+            "true" => Some(Type::TrueK),
+            "false" => Some(Type::FalseK),
             _ => None,
         };
 

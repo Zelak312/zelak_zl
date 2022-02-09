@@ -1,6 +1,7 @@
 use crate::ast::node_box::NodeBox;
 use crate::ast::node_kind::NodeKind;
 use crate::ast::nodes::array::NArray;
+use crate::ast::nodes::boolean::NBoolean;
 use crate::ast::nodes::call_statement::NCallStatement;
 use crate::ast::nodes::condition::NCondition;
 use crate::ast::nodes::condition_statement::NConditionStatement;
@@ -259,7 +260,11 @@ impl Parser {
         if let Ok(string) = self.string() {
             return Ok(string);
         }
-        return self.number();
+        if let Ok(number) = self.number() {
+            return Ok(number);
+        }
+
+        return self.boolean();
     }
 
     fn identifer(&mut self) -> Result<Box<NodeBox>, String> {
@@ -305,6 +310,20 @@ impl Parser {
                 val: self.base.eat(Type::Num)?.val.parse().unwrap(),
             }),
             NodeKind::Number,
+        ));
+    }
+
+    fn boolean(&mut self) -> Result<Box<NodeBox>, String> {
+        let boolean = self.base.eat_mult(&[Type::TrueK, Type::FalseK])?;
+        let val = match boolean._type {
+            Type::TrueK => true,
+            Type::FalseK => false,
+            _ => panic!("Not boolean"),
+        };
+
+        return Ok(NodeBox::new_box(
+            Box::new(NBoolean { val }),
+            NodeKind::Boolean,
         ));
     }
 }
