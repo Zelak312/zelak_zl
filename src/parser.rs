@@ -305,10 +305,20 @@ impl Parser {
     }
 
     fn number(&mut self) -> Result<Box<NodeBox>, String> {
+        let sign = self.base.eat_mult(&[Type::Add, Type::Min]);
+        let num: f64 = self.base.eat(Type::Num)?.val.parse().unwrap();
+        let sign_num;
+        if sign.is_ok() {
+            match sign.unwrap()._type {
+                Type::Min => sign_num = -num,
+                _ => sign_num = num,
+            }
+        } else {
+            sign_num = num;
+        }
+
         return Ok(NodeBox::new_box(
-            Box::new(NNumber {
-                val: self.base.eat(Type::Num)?.val.parse().unwrap(),
-            }),
+            Box::new(NNumber { val: sign_num }),
             NodeKind::Number,
         ));
     }
