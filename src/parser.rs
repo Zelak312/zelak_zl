@@ -81,44 +81,6 @@ impl Parser {
         ));
     }
 
-    fn condition_statement(&mut self) -> Result<Box<NodeBox>, String> {
-        let left = self.parenthese_statement(NodeKind::ConditionStatement)?;
-        if let Ok(operator) = self.base.eat_mult(&[Type::And, Type::Or]) {
-            return Ok(NodeBox::new_box(
-                Box::new(NConditionStatement {
-                    operator: operator.val,
-                    left,
-                    right: self.condition_statement()?,
-                }),
-                NodeKind::ConditionStatement,
-            ));
-        }
-
-        return Ok(left);
-    }
-
-    fn condition(&mut self) -> Result<Box<NodeBox>, String> {
-        let left = self.parenthese_statement(NodeKind::Condition)?;
-        let operator = self.base.eat_mult(&[
-            Type::Gt,
-            Type::Lt,
-            Type::NotEqual,
-            Type::GtEqual,
-            Type::LtEqual,
-            Type::DEqual,
-        ])?;
-        let right = self.parenthese_statement(NodeKind::Condition)?;
-
-        return Ok(NodeBox::new_box(
-            Box::new(NCondition {
-                operator: operator.val,
-                left,
-                right,
-            }),
-            NodeKind::Condition,
-        ));
-    }
-
     fn variable_statement(&mut self) -> Result<Box<NodeBox>, String> {
         let delcare_token = self.base.eat_mult(&[Type::ConstK, Type::LetK]);
         let identifier = self.identifer()?;
@@ -168,31 +130,47 @@ impl Parser {
         ));
     }
 
-    fn parenthese_statement(&mut self, kind: NodeKind) -> Result<Box<NodeBox>, String> {
-        if self.base.eat(Type::LParen).is_ok() {
-            let content = match kind {
-                NodeKind::MathStatement => self.math_statement(),
-                NodeKind::ConditionStatement => self.condition_statement(),
-                NodeKind::Condition => self.condition(),
-                _ => panic!("Don't know this parentheses kind"),
-            }?;
-            self.base.eat(Type::RParen)?;
-
+    fn condition_statement(&mut self) -> Result<Box<NodeBox>, String> {
+        let left = self.condition()?;
+        if let Ok(operator) = self.base.eat_mult(&[Type::And, Type::Or]) {
             return Ok(NodeBox::new_box(
-                Box::new(NParentheseStatement { content }),
-                NodeKind::ParentheseStatement,
+                Box::new(NConditionStatement {
+                    operator: operator.val,
+                    left,
+                    right: self.condition_statement()?,
+                }),
+                NodeKind::ConditionStatement,
             ));
         }
 
-        match kind {
-            NodeKind::MathStatement | NodeKind::Condition => self.basic_type(),
-            NodeKind::ConditionStatement => self.condition(),
-            _ => panic!("Don't know this parentheses kind"),
+        return Ok(left);
+    }
+
+    fn condition(&mut self) -> Result<Box<NodeBox>, String> {
+        let left = self.math_statement()?;
+        if let Ok(operator) = self.base.eat_mult(&[
+            Type::Gt,
+            Type::Lt,
+            Type::NotEqual,
+            Type::GtEqual,
+            Type::LtEqual,
+            Type::DEqual,
+        ]) {
+            return Ok(NodeBox::new_box(
+                Box::new(NCondition {
+                    operator: operator.val,
+                    left,
+                    right: self.condition()?,
+                }),
+                NodeKind::Condition,
+            ));
         }
+
+        return Ok(left);
     }
 
     fn math_statement(&mut self) -> Result<Box<NodeBox>, String> {
-        let left = self.parenthese_statement(NodeKind::MathStatement)?;
+        let left = self.parenthese_statement()?;
         if let Ok(operator) = self
             .base
             .eat_mult(&[Type::Add, Type::Min, Type::Mul, Type::Div])
@@ -208,6 +186,20 @@ impl Parser {
         }
 
         return Ok(left);
+    }
+
+    fn parenthese_statement(&mut self) -> Result<Box<NodeBox>, String> {
+        if self.base.eat(Type::LParen).is_ok() {
+            let content = self.condition_statement()?;
+            self.base.eat(Type::RParen)?;
+
+            return Ok(NodeBox::new_box(
+                Box::new(NParentheseStatement { content }),
+                NodeKind::ParentheseStatement,
+            ));
+        }
+
+        return self.basic_type();
     }
 
     fn function_reserved_identifier(&mut self) -> Result<Box<NodeBox>, String> {
