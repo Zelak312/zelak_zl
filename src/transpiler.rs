@@ -27,7 +27,7 @@ pub fn transpile(root: Box<NodeBox>) -> Box<NodeBox> {
     return NodeBox::new_box(program, NodeKind::Program);
 }
 
-fn tr_r(mut node: Box<NodeBox>, in_math: bool, in_string_concat: bool) -> Box<NodeBox> {
+fn tr_r(node: Box<NodeBox>, in_math: bool, in_string_concat: bool) -> Box<NodeBox> {
     match node._type {
         NodeKind::FunctionDefinition => {
             let mut data = node.content.downcast::<NFunctionDefinition>().unwrap();
@@ -150,20 +150,4 @@ fn tr_r(mut node: Box<NodeBox>, in_math: bool, in_string_concat: bool) -> Box<No
         }
         _ => panic!("Don't know what this is"),
     }
-
-    // if actual_id == TypeId::of::<NVariableStatement>() {
-    //     let variable_statement = root.downcast::<NVariableStatement>().unwrap();
-    //     return Box::new(BVariableStatement {
-    //         identifier: tr_r(variable_statement.identifier),
-    //         expression: tr_r(variable_statement.expression),
-    //     });
-    // } else if actual_id == TypeId::of::<NExpressionStatement>() {
-    //     let mut expression_statement = root.downcast::<NExpressionStatement>().unwrap();
-    //     expression_statement.content = tr_r(expression_statement.content);
-    //     return expression_statement;
-    // } else if actual_id == TypeId::of::<NIdentifier>() {
-    //     return root;
-    // } else if actual_id == TypeId::of::<NNumber>() {
-    //     return root;
-    // }
 }
