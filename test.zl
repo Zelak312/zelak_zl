@@ -1,8 +1,1 @@
-funk nice(d, e) {
-    if (e > 3) {
-        return "nice"
-    }
-
-    return "yeet"
-}
-nice()
+let t = 

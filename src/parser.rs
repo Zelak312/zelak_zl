@@ -285,7 +285,7 @@ impl Parser {
     }
 
     fn math_statement(&mut self) -> Result<Box<NodeBox>, String> {
-        let left = self.parenthese_statement()?;
+        let left = self.parenthese_statement(NodeKind::MathStatement)?;
         if let Ok(operator) = self
             .base
             .eat_mult(&[Type::Add, Type::Min, Type::Mul, Type::Div])
@@ -303,7 +303,7 @@ impl Parser {
         return Ok(left);
     }
 
-    fn parenthese_statement(&mut self) -> Result<Box<NodeBox>, String> {
+    fn parenthese_statement(&mut self, kind: NodeKind) -> Result<Box<NodeBox>, String> {
         if self.base.eat(Type::LParen).is_ok() {
             let content = self.condition_statement()?;
             self.base.eat(Type::RParen)?;
@@ -314,22 +314,30 @@ impl Parser {
             ));
         }
 
-        return self.basic_type();
+        return match kind {
+            NodeKind::MathStatement => self.math_type(),
+            _ => panic!("Don't know this node kind"),
+        };
     }
 
-    fn basic_type(&mut self) -> Result<Box<NodeBox>, String> {
+    fn math_type(&mut self) -> Result<Box<NodeBox>, String> {
         if let Ok(identifier) = self.identifer() {
             let call_statement = self.call_statement(Ok(identifier))?;
             return Ok(call_statement);
+        }
+
+        return self.number();
+    }
+
+    fn basic_type(&mut self) -> Result<Box<NodeBox>, String> {
+        if let Ok(math_type) = self.math_type() {
+            return Ok(math_type);
         }
         if let Ok(array) = self.array() {
             return Ok(array);
         }
         if let Ok(string) = self.string() {
             return Ok(string);
-        }
-        if let Ok(number) = self.number() {
-            return Ok(number);
         }
 
         return self.boolean();
