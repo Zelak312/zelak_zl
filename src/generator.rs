@@ -29,8 +29,7 @@ pub fn generate_code(node: Box<NodeBox>, tab: usize, in_concat: bool) -> Box<Str
         }
         NodeKind::FunctionDefinition => {
             let data = node.content.downcast::<NFunctionDefinition>().unwrap();
-            let identifier = data.identifier.content.downcast::<NIdentifier>().unwrap();
-            let mut start = format!("function {} {{\n", identifier.name);
+            let mut start = format!("function {} {{\n", data.identifier);
             let mut counter = 1;
             for argument in data.arguments {
                 let identifier = argument.content.downcast::<NIdentifier>().unwrap();
@@ -66,23 +65,22 @@ pub fn generate_code(node: Box<NodeBox>, tab: usize, in_concat: bool) -> Box<Str
         NodeKind::ForStatement => "Not implemented for loops".to_string(),
         NodeKind::VariableStatement => {
             let data = node.content.downcast::<NVariableStatement>().unwrap();
-            let identifier = data.identifier.content.downcast::<NIdentifier>().unwrap();
-            let mut d = String::new();
+            let mut ss = String::new();
             if data.expression._type == NodeKind::CallStatement {
-                d = format!(
+                ss = format!(
                     "{}\n{}{}=$?",
                     generate_code(data.expression, tab, false),
                     "\t".repeat(tab),
-                    identifier.name
+                    data.identifier
                 );
             } else {
-                d = format!(
+                ss = format!(
                     "{}={}",
-                    identifier.name,
+                    data.identifier,
                     generate_code(data.expression, tab, false)
                 );
             }
-            d
+            ss
         }
         NodeKind::ExpressionStatement => {
             let data = node.content.downcast::<NExpressionStatement>().unwrap();
@@ -94,10 +92,9 @@ pub fn generate_code(node: Box<NodeBox>, tab: usize, in_concat: bool) -> Box<Str
         }
         NodeKind::CallStatement => {
             let data = node.content.downcast::<NCallStatement>().unwrap();
-            let identifier = data.identifier.content.downcast::<NIdentifier>().unwrap();
-            let mut start = match identifier.name.as_str() {
+            let mut start = match data.identifier.as_str() {
                 "print" => "echo".to_string(),
-                _ => identifier.name,
+                _ => data.identifier,
             } + " ";
             let mut first = true;
             for parameter in data.parameters {

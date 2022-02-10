@@ -31,7 +31,6 @@ fn tr_r(node: Box<NodeBox>, in_math: bool, in_string_concat: bool) -> Box<NodeBo
     match node._type {
         NodeKind::FunctionDefinition => {
             let mut data = node.content.downcast::<NFunctionDefinition>().unwrap();
-            data.identifier = tr_r(data.identifier, false, false);
             data.arguments = data
                 .arguments
                 .into_iter()
@@ -74,7 +73,6 @@ fn tr_r(node: Box<NodeBox>, in_math: bool, in_string_concat: bool) -> Box<NodeBo
         NodeKind::VariableStatement => {
             let mut data = node.content.downcast::<NVariableStatement>().unwrap();
             data.declare_type = None;
-            data.identifier = tr_r(data.identifier, false, false);
             data.expression = tr_r(data.expression, false, false);
             return NodeBox::new_box(data, NodeKind::VariableStatement);
         }
@@ -85,7 +83,6 @@ fn tr_r(node: Box<NodeBox>, in_math: bool, in_string_concat: bool) -> Box<NodeBo
         }
         NodeKind::CallStatement => {
             let mut data = node.content.downcast::<NCallStatement>().unwrap();
-            data.identifier = tr_r(data.identifier, in_math, in_string_concat);
             data.parameters = data
                 .parameters
                 .into_iter()

@@ -18,6 +18,7 @@ use crate::ast::nodes::program::NProgram;
 use crate::ast::nodes::string::NString;
 use crate::ast::nodes::string_concat::NStringConcat;
 use crate::ast::nodes::variable_statement::NVariableStatement;
+use crate::token::Token;
 
 use super::base_parser::BaseParser;
 use super::lexer::Lexer;
@@ -50,7 +51,7 @@ impl Parser {
 
     fn function_definition(&mut self) -> Result<Box<NodeBox>, String> {
         self.base.eat(Type::FunkK)?;
-        let identifier = self.identifer()?;
+        let identifier = self.base.eat(Type::Iden)?;
         self.base.eat(Type::LParen)?;
         let arguments = self.function_parameters(true)?;
         self.base.eat(Type::RParen)?;
@@ -63,7 +64,7 @@ impl Parser {
 
         return Ok(NodeBox::new_box(
             Box::new(NFunctionDefinition {
-                identifier,
+                identifier: identifier.val,
                 arguments,
                 expressions,
             }),
@@ -173,16 +174,21 @@ impl Parser {
 
     fn variable_statement(&mut self) -> Result<Box<NodeBox>, String> {
         let delcare_token = self.base.eat_mult(&[Type::ConstK, Type::LetK]);
-        let identifier = self.identifer()?;
+        let identifier = self.base.eat(Type::Iden)?;
         if self.base.eat(Type::Equal).is_err() {
-            return Ok(identifier);
+            return Ok(NodeBox::new_box(
+                Box::new(NIdentifier {
+                    name: identifier.val,
+                }),
+                NodeKind::VariableStatement,
+            ));
         }
         let condition_statement = self.condition_statement_or_basic_type()?;
 
         return Ok(NodeBox::new_box(
             Box::new(NVariableStatement {
                 declare_type: delcare_token.ok().and_then(|t| Some(t._type)),
-                identifier,
+                identifier: identifier.val,
                 expression: condition_statement,
             }),
             NodeKind::VariableStatement,
@@ -195,15 +201,25 @@ impl Parser {
     ) -> Result<Box<NodeBox>, String> {
         let function_name;
         if identifier.is_err() {
-            function_name = self.function_reserved_identifier()?;
+            function_name = self.function_reserved_identifier()?.val;
         } else if identifier.as_ref().unwrap()._type == NodeKind::Identifier {
-            function_name = identifier.unwrap();
+            function_name = identifier
+                .unwrap()
+                .content
+                .downcast::<NIdentifier>()
+                .unwrap()
+                .name;
         } else {
             return identifier;
         }
 
         if self.base.eat(Type::LParen).is_err() {
-            return Ok(function_name);
+            return Ok(NodeBox::new_box(
+                Box::new(NIdentifier {
+                    name: function_name,
+                }),
+                NodeKind::Identifier,
+            ));
         }
         let params = self.function_parameters(false)?;
         self.base.eat(Type::RParen)?;
@@ -237,13 +253,8 @@ impl Parser {
         return Ok(params);
     }
 
-    fn function_reserved_identifier(&mut self) -> Result<Box<NodeBox>, String> {
-        return Ok(NodeBox::new_box(
-            Box::new(NIdentifier {
-                name: self.base.eat_mult(&[Type::PrintK])?.val,
-            }),
-            NodeKind::Identifier,
-        ));
+    fn function_reserved_identifier(&mut self) -> Result<Token, String> {
+        return self.base.eat_mult(&[Type::PrintK]);
     }
 
     fn condition_statement_or_basic_type(&mut self) -> Result<Box<NodeBox>, String> {
