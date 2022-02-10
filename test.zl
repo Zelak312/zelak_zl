@@ -1,1 +1,5 @@
-let t = 
+let t = "nice"
+let t = 10
+let d = fff
+let b = true
+let z = []

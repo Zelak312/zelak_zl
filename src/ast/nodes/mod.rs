@@ -14,4 +14,5 @@ pub mod number;
 pub mod parenthese_statement;
 pub mod program;
 pub mod string;
+pub mod string_concat;
 pub mod variable_statement;

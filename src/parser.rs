@@ -16,6 +16,7 @@ use crate::ast::nodes::number::NNumber;
 use crate::ast::nodes::parenthese_statement::NParentheseStatement;
 use crate::ast::nodes::program::NProgram;
 use crate::ast::nodes::string::NString;
+use crate::ast::nodes::string_concat::NStringConcat;
 use crate::ast::nodes::variable_statement::NVariableStatement;
 
 use super::base_parser::BaseParser;
@@ -116,7 +117,7 @@ impl Parser {
         self.base.eat(Type::ReturnK)?;
         return Ok(NodeBox::new_box(
             Box::new(NFunctionReturn {
-                content: self.condition_statement()?,
+                content: self.condition_statement_or_basic_type()?,
             }),
             NodeKind::FunctionReturn,
         ));
@@ -176,7 +177,7 @@ impl Parser {
         if self.base.eat(Type::Equal).is_err() {
             return Ok(identifier);
         }
-        let condition_statement = self.condition_statement()?;
+        let condition_statement = self.condition_statement_or_basic_type()?;
 
         return Ok(NodeBox::new_box(
             Box::new(NVariableStatement {
@@ -219,7 +220,7 @@ impl Parser {
         let mut params = vec![];
         let current = match only_iden {
             true => self.identifer(),
-            false => self.condition_statement(),
+            false => self.condition_statement_or_basic_type(),
         };
 
         if current.is_ok() {
@@ -227,7 +228,7 @@ impl Parser {
             while let Ok(_) = self.base.eat(Type::Comma) {
                 let param = match only_iden {
                     true => self.identifer(),
-                    false => self.condition_statement(),
+                    false => self.condition_statement_or_basic_type(),
                 }?;
                 params.push(param);
             }
@@ -243,6 +244,14 @@ impl Parser {
             }),
             NodeKind::Identifier,
         ));
+    }
+
+    fn condition_statement_or_basic_type(&mut self) -> Result<Box<NodeBox>, String> {
+        if let Ok(condition_statement) = self.condition_statement() {
+            return Ok(condition_statement);
+        }
+
+        return self.basic_type();
     }
 
     fn condition_statement(&mut self) -> Result<Box<NodeBox>, String> {
@@ -262,7 +271,11 @@ impl Parser {
     }
 
     fn condition(&mut self) -> Result<Box<NodeBox>, String> {
-        let left = self.math_statement()?;
+        let mut left = self.string_concat();
+        if left.is_err() {
+            left = self.boolean();
+        }
+        let left_val = left?;
         if let Ok(operator) = self.base.eat_mult(&[
             Type::Gt,
             Type::Lt,
@@ -274,18 +287,18 @@ impl Parser {
             return Ok(NodeBox::new_box(
                 Box::new(NCondition {
                     operator: operator.val,
-                    left,
+                    left: left_val,
                     right: self.condition()?,
                 }),
                 NodeKind::Condition,
             ));
         }
 
-        return Ok(left);
+        return Ok(left_val);
     }
 
     fn math_statement(&mut self) -> Result<Box<NodeBox>, String> {
-        let left = self.parenthese_statement(NodeKind::MathStatement)?;
+        let left = self.parenthese_statement()?;
         if let Ok(operator) = self
             .base
             .eat_mult(&[Type::Add, Type::Min, Type::Mul, Type::Div])
@@ -303,7 +316,22 @@ impl Parser {
         return Ok(left);
     }
 
-    fn parenthese_statement(&mut self, kind: NodeKind) -> Result<Box<NodeBox>, String> {
+    fn string_concat(&mut self) -> Result<Box<NodeBox>, String> {
+        let left = self.string_concat_type()?;
+        if let Ok(_) = self.base.eat(Type::Dot) {
+            return Ok(NodeBox::new_box(
+                Box::new(NStringConcat {
+                    left,
+                    right: self.string_concat()?,
+                }),
+                NodeKind::StringConcat,
+            ));
+        }
+
+        return Ok(left);
+    }
+
+    fn parenthese_statement(&mut self) -> Result<Box<NodeBox>, String> {
         if self.base.eat(Type::LParen).is_ok() {
             let content = self.condition_statement()?;
             self.base.eat(Type::RParen)?;
@@ -314,19 +342,7 @@ impl Parser {
             ));
         }
 
-        return match kind {
-            NodeKind::MathStatement => self.math_type(),
-            _ => panic!("Don't know this node kind"),
-        };
-    }
-
-    fn math_type(&mut self) -> Result<Box<NodeBox>, String> {
-        if let Ok(identifier) = self.identifer() {
-            let call_statement = self.call_statement(Ok(identifier))?;
-            return Ok(call_statement);
-        }
-
-        return self.number();
+        return self.math_type();
     }
 
     fn basic_type(&mut self) -> Result<Box<NodeBox>, String> {
@@ -341,6 +357,23 @@ impl Parser {
         }
 
         return self.boolean();
+    }
+
+    fn math_type(&mut self) -> Result<Box<NodeBox>, String> {
+        if let Ok(identifier) = self.identifer() {
+            let call_statement = self.call_statement(Ok(identifier))?;
+            return Ok(call_statement);
+        }
+
+        return self.number();
+    }
+
+    fn string_concat_type(&mut self) -> Result<Box<NodeBox>, String> {
+        if let Ok(string) = self.string() {
+            return Ok(string);
+        }
+
+        return self.math_statement();
     }
 
     fn identifer(&mut self) -> Result<Box<NodeBox>, String> {

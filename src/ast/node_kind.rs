@@ -11,6 +11,7 @@ pub enum NodeKind {
     ConditionStatement,
     Condition,
     MathStatement,
+    StringConcat,
     ParentheseStatement,
     Identifier,
     Array,

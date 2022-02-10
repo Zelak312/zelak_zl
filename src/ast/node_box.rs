@@ -7,7 +7,7 @@ use super::{
         function_return::NFunctionReturn, identifier::NIdentifier, if_statement::NIfStatement,
         math_statement::NMathStatement, number::NNumber,
         parenthese_statement::NParentheseStatement, program::NProgram, string::NString,
-        variable_statement::NVariableStatement,
+        string_concat::NStringConcat, variable_statement::NVariableStatement,
     },
 };
 use std::any::Any;
@@ -74,6 +74,10 @@ impl NodeBox {
             }
             NodeKind::MathStatement => {
                 let d = self.content.downcast_ref::<NMathStatement>().unwrap();
+                d.debug(tab_r)
+            }
+            NodeKind::StringConcat => {
+                let d = self.content.downcast_ref::<NStringConcat>().unwrap();
                 d.debug(tab_r)
             }
             NodeKind::Identifier => {
