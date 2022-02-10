@@ -1,3 +1,7 @@
+use crate::bash_nodes::{
+    bmath_expression::BMathExpression, bstring_concat_expression::BStringConcatExpression,
+};
+
 use super::{
     node_kind::NodeKind,
     nodes::{
@@ -98,6 +102,17 @@ impl NodeBox {
             }
             NodeKind::Boolean => {
                 let d = self.content.downcast_ref::<NBoolean>().unwrap();
+                d.debug(tab_r)
+            }
+            NodeKind::BMathExpression => {
+                let d = self.content.downcast_ref::<BMathExpression>().unwrap();
+                d.debug(tab_r)
+            }
+            NodeKind::BStringConcatExpression => {
+                let d = self
+                    .content
+                    .downcast_ref::<BStringConcatExpression>()
+                    .unwrap();
                 d.debug(tab_r)
             }
         }

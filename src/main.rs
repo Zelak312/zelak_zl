@@ -4,12 +4,14 @@ mod bash_nodes;
 mod lexer;
 mod parser;
 mod token;
+mod transpiler;
 use lexer::Lexer;
 use parser::Parser;
 use std::{
     env,
     fs::{self},
 };
+use transpiler::transpile;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -25,7 +27,11 @@ fn main() {
     if debug {
         ast.debug(None);
     }
-    // let bash_ast = transpile(ast);
+
+    let bash_ast = transpile(ast);
+    if debug {
+        bash_ast.debug(None);
+    }
     // let code = generate_code(bash_ast);
 
     // let path = Path::new("transpiled.sh");

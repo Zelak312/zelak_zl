@@ -18,4 +18,6 @@ pub enum NodeKind {
     String,
     Number,
     Boolean,
+    BMathExpression,
+    BStringConcatExpression,
 }
