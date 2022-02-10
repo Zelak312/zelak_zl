@@ -1,15 +1,19 @@
 mod ast;
 mod base_parser;
 mod bash_nodes;
+mod generator;
 mod lexer;
 mod parser;
 mod token;
 mod transpiler;
+use generator::generate_code;
 use lexer::Lexer;
 use parser::Parser;
 use std::{
     env,
-    fs::{self},
+    fs::{self, File},
+    io::Write,
+    path::Path,
 };
 use transpiler::transpile;
 
@@ -32,16 +36,16 @@ fn main() {
     if debug {
         bash_ast.debug(None);
     }
-    // let code = generate_code(bash_ast);
+    let code = generate_code(bash_ast, 0, false);
 
-    // let path = Path::new("transpiled.sh");
-    // let mut file = match File::create(&path) {
-    //     Err(why) => panic!("couldn't create {}", why),
-    //     Ok(file) => file,
-    // };
+    let path = Path::new("transpiled.sh");
+    let mut file = match File::create(&path) {
+        Err(why) => panic!("couldn't create {}", why),
+        Ok(file) => file,
+    };
 
-    // match file.write_all(code.as_bytes()) {
-    //     Err(why) => panic!("couldn't write to {}", why),
-    //     Ok(_) => println!("successfully wrote"),
-    // }
+    match file.write_all(code.as_bytes()) {
+        Err(why) => panic!("couldn't write to {}", why),
+        Ok(_) => println!("successfully wrote"),
+    }
 }
