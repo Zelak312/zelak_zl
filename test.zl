@@ -1,18 +1,6 @@
-funk add(num1) {
-    funk other() {
-        funk shit() {
-            funk nice() {
-                print("oof")
-            }
-        }
-    }
-    print(num1)
-    if (num1 < 50) {
-        let added = add(num1 + 1)
-        return added
-    }
-    return num1
+funk add(n, n2) {
+    return n + n2
 }
 
-let result = add(1)
-print(result)
+let added = add(4, 6)
+print(added)

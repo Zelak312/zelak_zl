@@ -1,22 +1,9 @@
 #!/bin/bash
 function add {
-	local num1=$1
-	function other {
-		function shit {
-			function nice {
-				echo "oof"
-			}
-		}
-	}
-	echo $num1
-	if [ $num1 -lt 50 ]
-	then
-		add $(($num1 + 1))
-		added=$?
-		return $added
-	fi
-	return $num1
+	local n=$1
+	local n2=$2
+	return $(($n + $n2))
 }
-add 1
-result=$?
-echo $result
+add 4 6
+added=$?
+echo $added
