@@ -1,6 +1,1 @@
-funk add(n, n2) {
-    return n + n2
-}
-
-let added = add(4, 6)
-print(added)
+1+2-3*4/5^6%7
