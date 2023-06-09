@@ -14,6 +14,41 @@ const (
 	tOpDivide
 	tOpModulo
 	tOpPower
+
+	tString
+	tChar
+	tTemplateString
+	tIdentifier
+
+	tEqual
+	tComma
+	tDot
+	tColon
+	tSemicolon
+	tLeftParen
+	tRightParen
+	tLeftBrace
+	tRightBrace
+	tLeftBracket
+	tRightBracket
+	tExclamationMark
+	tQuestionMark
+	tGt
+	tLt
+	tGtEq
+	tLtEq
+	tEqEq
+	tNotEq
+	tBinAnd
+	tBinOr
+
+	tIf
+	tElse
+	tWhile
+	tFor
+	tFn
+	tReturn
+
 	tEOF
 )
 
