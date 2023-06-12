@@ -45,14 +45,18 @@ func _() {
 	_ = x[tElse-34]
 	_ = x[tWhile-35]
 	_ = x[tFor-36]
-	_ = x[tFn-37]
-	_ = x[tReturn-38]
-	_ = x[tEOF-39]
+	_ = x[tIn-37]
+	_ = x[tLoop-38]
+	_ = x[tBreak-39]
+	_ = x[tContinue-40]
+	_ = x[tFn-41]
+	_ = x[tReturn-42]
+	_ = x[tEOF-43]
 }
 
-const _TokenType_name = "tUknowntNumbertOpPlustOpMinustOpMultiplytOpDividetOpModulotOpPowertStringtChartTemplateStringtIdentifiertEqualtCommatDottColontSemicolontLeftParentRightParentLeftBracetRightBracetLeftBrackettRightBrackettExclamationMarktQuestionMarktGttLttGtEqtLtEqtEqEqtNotEqtBinAndtBinOrtIftElsetWhiletFortFntReturntEOF"
+const _TokenType_name = "tUknowntNumbertOpPlustOpMinustOpMultiplytOpDividetOpModulotOpPowertStringtChartTemplateStringtIdentifiertEqualtCommatDottColontSemicolontLeftParentRightParentLeftBracetRightBracetLeftBrackettRightBrackettExclamationMarktQuestionMarktGttLttGtEqtLtEqtEqEqtNotEqtBinAndtBinOrtIftElsetWhiletFortIntLooptBreaktContinuetFntReturntEOF"
 
-var _TokenType_index = [...]uint16{0, 7, 14, 21, 29, 40, 49, 58, 66, 73, 78, 93, 104, 110, 116, 120, 126, 136, 146, 157, 167, 178, 190, 203, 219, 232, 235, 238, 243, 248, 253, 259, 266, 272, 275, 280, 286, 290, 293, 300, 304}
+var _TokenType_index = [...]uint16{0, 7, 14, 21, 29, 40, 49, 58, 66, 73, 78, 93, 104, 110, 116, 120, 126, 136, 146, 157, 167, 178, 190, 203, 219, 232, 235, 238, 243, 248, 253, 259, 266, 272, 275, 280, 286, 290, 293, 298, 304, 313, 316, 323, 327}
 
 func (i TokenType) String() string {
 	if i < 0 || i >= TokenType(len(_TokenType_index)-1) {

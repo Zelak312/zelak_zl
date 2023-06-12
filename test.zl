@@ -4,5 +4,10 @@
 `nice`
 fn
 while
+loop
+for
+in
+break
+continue
 variable
 <>[]!()?.,:;{}

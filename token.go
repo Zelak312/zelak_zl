@@ -46,6 +46,10 @@ const (
 	tElse
 	tWhile
 	tFor
+	tIn
+	tLoop
+	tBreak
+	tContinue
 	tFn
 	tReturn
 

@@ -35,12 +35,16 @@ var operators = map[rune]TokenType{
 }
 
 var keywords = map[string]TokenType{
-	"if":     tIf,
-	"else":   tElse,
-	"while":  tWhile,
-	"for":    tFor,
-	"fn":     tFn,
-	"return": tReturn,
+	"if":       tIf,
+	"else":     tElse,
+	"while":    tWhile,
+	"for":      tFor,
+	"in":       tIn,
+	"loop":     tLoop,
+	"break":    tBreak,
+	"continue": tContinue,
+	"fn":       tFn,
+	"return":   tReturn,
 }
 
 var stringType = map[rune]TokenType{
