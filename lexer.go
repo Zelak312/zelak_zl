@@ -45,6 +45,8 @@ var keywords = map[string]TokenType{
 	"continue": tContinue,
 	"fn":       tFn,
 	"return":   tReturn,
+	"true":     tTrue,
+	"false":    tFalse,
 }
 
 var stringType = map[rune]TokenType{
@@ -77,7 +79,7 @@ func lex(s *bufio.Reader) Token {
 		utils.Panic(err)
 
 		t = newToken(_type, s)
-	} else {
+	} else if unicode.IsLetter(c) || c == '_' {
 		s, err := lexIdentifier(s, c)
 		utils.Panic(err)
 
@@ -86,6 +88,8 @@ func lex(s *bufio.Reader) Token {
 		} else {
 			t = newToken(tIdentifier, s)
 		}
+	} else {
+		t.value = c
 	}
 
 	return t

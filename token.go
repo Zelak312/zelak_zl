@@ -19,11 +19,14 @@ const (
 	tChar
 	tTemplateString
 	tIdentifier
+	tTrue
+	tFalse
 
 	tEqual
 	tComma
 	tDot
 	tColon
+	tTripleDot
 	tSemicolon
 	tLeftParen
 	tRightParen
