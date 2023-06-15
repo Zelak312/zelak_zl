@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"strconv"
+	"strings"
 	"unicode"
 	"zelak312/zelak_zl/utils"
 )
@@ -32,6 +33,14 @@ var operators = map[rune]TokenType{
 	'<': tLt,
 	'&': tBinAnd,
 	'|': tBinOr,
+}
+
+var operatorsExtended = map[string]TokenType{
+	"...": tTripleDot,
+	"==":  tEqEq,
+	"!=":  tNotEq,
+	">=":  tGtEq,
+	"<=":  tLtEq,
 }
 
 var keywords = map[string]TokenType{
@@ -74,11 +83,19 @@ func lex(s *bufio.Reader) Token {
 		t = newToken(tNumber, i)
 	} else if _type, ok := operators[c]; ok {
 		t = newToken(_type, c)
-	} else if _type, ok := stringType[c]; ok {
-		s, err := lexString(s, c)
-		utils.Panic(err)
 
-		t = newToken(_type, s)
+		extended, err := lexOperatorExtended(s, c)
+		if err != io.EOF {
+			utils.Panic(err)
+		}
+
+		if _type, ok := operatorsExtended[extended]; ok {
+			t = newToken(_type, extended)
+		}
+	} else if _type, ok := stringType[c]; ok {
+		str, err := lexString(s, c)
+		utils.Panic(err)
+		t = newToken(_type, str)
 	} else if unicode.IsLetter(c) || c == '_' {
 		s, err := lexIdentifier(s, c)
 		utils.Panic(err)
@@ -117,6 +134,30 @@ func lexNumber(s *bufio.Reader, c rune) (int64, error) {
 	}
 
 	return strconv.ParseInt(i, 10, 64)
+}
+
+func lexOperatorExtended(s *bufio.Reader, c rune) (string, error) {
+	str := string(c)
+	for n, err := peekRune(s); !unicode.IsSpace(n); n, err = peekRune(s) {
+		if err != nil {
+			return str, err
+		}
+
+		str += string(n)
+		found := false
+		for k := range operatorsExtended {
+			if strings.HasPrefix(k, str) {
+				s.ReadRune()
+				found = true
+			}
+		}
+
+		if !found {
+			break
+		}
+	}
+
+	return str, nil
 }
 
 func lexString(s *bufio.Reader, c rune) (string, error) {

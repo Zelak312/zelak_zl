@@ -1,5 +1,6 @@
+...
 1+2-3*4/5^6%7
-"somthing"
+"something"
 'other'
 `nice`
 fn
@@ -15,3 +16,7 @@ variable
 true
 false
 @
+!=
+==
+>=
+<=
