@@ -44,6 +44,8 @@ const (
 	tNotEq
 	tBinAnd
 	tBinOr
+	tAnd
+	tOr
 
 	tIf
 	tElse

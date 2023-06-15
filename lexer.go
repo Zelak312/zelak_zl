@@ -41,6 +41,8 @@ var operatorsExtended = map[string]TokenType{
 	"!=":  tNotEq,
 	">=":  tGtEq,
 	"<=":  tLtEq,
+	"&&":  tAnd,
+	"||":  tOr,
 }
 
 var keywords = map[string]TokenType{
@@ -122,18 +124,23 @@ func peekRune(s *bufio.Reader) (rune, error) {
 	return c, err
 }
 
-func lexNumber(s *bufio.Reader, c rune) (int64, error) {
+func lexNumber(s *bufio.Reader, c rune) (float64, error) {
 	i := string(c)
-	for n, err := peekRune(s); unicode.IsDigit(n); n, err = peekRune(s) {
+	for n, err := peekRune(s); unicode.IsDigit(n) || n == '.' || n == '_'; n, err = peekRune(s) {
 		if err != nil {
-			return strconv.ParseInt(i, 10, 64)
+			return strconv.ParseFloat(i, 64)
+		}
+
+		if n == '_' {
+			s.ReadRune()
+			continue
 		}
 
 		i += string(n)
 		s.ReadRune()
 	}
 
-	return strconv.ParseInt(i, 10, 64)
+	return strconv.ParseFloat(i, 64)
 }
 
 func lexOperatorExtended(s *bufio.Reader, c rune) (string, error) {

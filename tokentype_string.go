@@ -44,22 +44,24 @@ func _() {
 	_ = x[tNotEq-33]
 	_ = x[tBinAnd-34]
 	_ = x[tBinOr-35]
-	_ = x[tIf-36]
-	_ = x[tElse-37]
-	_ = x[tWhile-38]
-	_ = x[tFor-39]
-	_ = x[tIn-40]
-	_ = x[tLoop-41]
-	_ = x[tBreak-42]
-	_ = x[tContinue-43]
-	_ = x[tFn-44]
-	_ = x[tReturn-45]
-	_ = x[tEOF-46]
+	_ = x[tAnd-36]
+	_ = x[tOr-37]
+	_ = x[tIf-38]
+	_ = x[tElse-39]
+	_ = x[tWhile-40]
+	_ = x[tFor-41]
+	_ = x[tIn-42]
+	_ = x[tLoop-43]
+	_ = x[tBreak-44]
+	_ = x[tContinue-45]
+	_ = x[tFn-46]
+	_ = x[tReturn-47]
+	_ = x[tEOF-48]
 }
 
-const _TokenType_name = "tUknowntNumbertOpPlustOpMinustOpMultiplytOpDividetOpModulotOpPowertStringtChartTemplateStringtIdentifiertTruetFalsetEqualtCommatDottColontTripleDottSemicolontLeftParentRightParentLeftBracetRightBracetLeftBrackettRightBrackettExclamationMarktQuestionMarktGttLttGtEqtLtEqtEqEqtNotEqtBinAndtBinOrtIftElsetWhiletFortIntLooptBreaktContinuetFntReturntEOF"
+const _TokenType_name = "tUknowntNumbertOpPlustOpMinustOpMultiplytOpDividetOpModulotOpPowertStringtChartTemplateStringtIdentifiertTruetFalsetEqualtCommatDottColontTripleDottSemicolontLeftParentRightParentLeftBracetRightBracetLeftBrackettRightBrackettExclamationMarktQuestionMarktGttLttGtEqtLtEqtEqEqtNotEqtBinAndtBinOrtAndtOrtIftElsetWhiletFortIntLooptBreaktContinuetFntReturntEOF"
 
-var _TokenType_index = [...]uint16{0, 7, 14, 21, 29, 40, 49, 58, 66, 73, 78, 93, 104, 109, 115, 121, 127, 131, 137, 147, 157, 167, 178, 188, 199, 211, 224, 240, 253, 256, 259, 264, 269, 274, 280, 287, 293, 296, 301, 307, 311, 314, 319, 325, 334, 337, 344, 348}
+var _TokenType_index = [...]uint16{0, 7, 14, 21, 29, 40, 49, 58, 66, 73, 78, 93, 104, 109, 115, 121, 127, 131, 137, 147, 157, 167, 178, 188, 199, 211, 224, 240, 253, 256, 259, 264, 269, 274, 280, 287, 293, 297, 300, 303, 308, 314, 318, 321, 326, 332, 341, 344, 351, 355}
 
 func (i TokenType) String() string {
 	if i < 0 || i >= TokenType(len(_TokenType_index)-1) {
